@@ -1,13 +1,24 @@
 <idea-plugin url="www.jetbrains.com">
     <id>com.github.kindermax.intellijlets</id>
-    <name>intellij-lets</name>
-    <vendor>kindermax</vendor>
+    <name>Lets</name>
+    <vendor>Lets-cli.org</vendor>
+    <description><![CDATA[
+      Lets - CLI task runner for developers - a better alternative to make
+    ]]></description>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <fileType
+            name="lets"
+            language="lets"
+            implementationClass="com.github.kindermax.intellijlets.LetsFileType"
+            extensions="yaml"
+            fileNames="lets.yaml"
+            patterns="lets.*.yaml"
+        />
         <applicationService serviceImplementation="com.github.kindermax.intellijlets.services.MyApplicationService"/>
         <projectService serviceImplementation="com.github.kindermax.intellijlets.services.MyProjectService"/>
     </extensions>
