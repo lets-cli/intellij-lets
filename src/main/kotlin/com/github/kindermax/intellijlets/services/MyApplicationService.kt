@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.template.services
+package com.github.kindermax.intellijlets.services
 
-import org.jetbrains.plugins.template.MyBundle
+import com.github.kindermax.intellijlets.MyBundle
 
 class MyApplicationService {
 
