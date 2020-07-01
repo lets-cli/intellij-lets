@@ -9,22 +9,21 @@
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <fileType
             name="lets"
-            language="lets"
+            language="yaml"
             implementationClass="com.github.kindermax.intellijlets.LetsFileType"
             extensions="yaml"
             fileNames="lets.yaml"
             patterns="lets.*.yaml"
         />
-        <applicationService serviceImplementation="com.github.kindermax.intellijlets.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.kindermax.intellijlets.services.MyProjectService"/>
+        <completion.contributor
+            language="yaml"
+            order="first"
+            implementationClass="com.github.kindermax.intellijlets.LetsCompletionContributor"
+        />
     </extensions>
-
-    <projectListeners>
-        <listener class="com.github.kindermax.intellijlets.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </projectListeners>
 </idea-plugin>

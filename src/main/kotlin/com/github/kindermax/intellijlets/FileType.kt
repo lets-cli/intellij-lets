@@ -1,8 +1,9 @@
 package com.github.kindermax.intellijlets
 
 import com.intellij.openapi.fileTypes.LanguageFileType
+import org.jetbrains.yaml.YAMLLanguage
 
-object LetsFileType : LanguageFileType(LetsLanguage) {
+object LetsFileType : LanguageFileType(YAMLLanguage.INSTANCE) {
     val DEFAULT_EXTESION: String = "yaml"
 
     override fun getIcon() = Icons.LetsYaml
@@ -11,7 +12,7 @@ object LetsFileType : LanguageFileType(LetsLanguage) {
 
     override fun getDefaultExtension() = DEFAULT_EXTESION
 
-    override fun getDescription() = "Lets yaml config"
+    override fun getDescription() = "Lets YAML"
 
     override fun toString() = name
 }
