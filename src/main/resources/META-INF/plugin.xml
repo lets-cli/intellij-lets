@@ -1,7 +1,7 @@
 <idea-plugin url="www.jetbrains.com">
     <id>com.github.kindermax.intellijlets</id>
     <name>Lets</name>
-    <vendor>Lets-cli.org</vendor>
+    <vendor url="https://lets-cli.org" email="kindritskiy.m@gmail.com">Lets-cli.org</vendor>
     <description><![CDATA[
       Lets - CLI task runner for developers - a better alternative to make
     ]]></description>
