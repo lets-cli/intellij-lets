@@ -3,6 +3,9 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+- Empty
+
+## [0.0.3]
 ### Added
 - pluginIcon svg
 ### Changed
