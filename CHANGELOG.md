@@ -3,7 +3,10 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
-- Empty
+### Added
+- pluginIcon svg
+### Changed
+- replace png filetype icon with svg
 
 ## [0.0.2]
 ### Added
