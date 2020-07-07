@@ -1,4 +1,4 @@
-<idea-plugin url="www.jetbrains.com">
+<idea-plugin>
     <id>com.github.kindermax.intellijlets</id>
     <name>Lets</name>
     <vendor url="https://lets-cli.org" email="kindritskiy.m@gmail.com">Lets-cli.org</vendor>
