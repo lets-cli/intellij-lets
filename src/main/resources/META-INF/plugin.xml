@@ -2,7 +2,6 @@
     <id>com.github.kindermax.intellijlets</id>
     <name>Lets</name>
     <vendor url="https://lets-cli.org" email="kindritskiy.m@gmail.com">Lets-cli.org</vendor>
-    <idea-version since-build="193"/>
     <description><![CDATA[
       Lets - CLI task runner for developers - a better alternative to make
     ]]></description>

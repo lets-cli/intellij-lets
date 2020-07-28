@@ -3,7 +3,7 @@ package com.github.kindermax.intellijlets
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns
-import com.intellij.psi.util.parents
+import com.intellij.psi.util.parentsOfType
 import com.intellij.util.ProcessingContext
 import org.jetbrains.yaml.YAMLLanguage
 import org.jetbrains.yaml.psi.YAMLDocument
@@ -53,7 +53,7 @@ open class LetsCompletionContributor : CompletionContributor() {
          * 2. Add tests
          */
         fun isCommandLevel(parameters: CompletionParameters): Boolean {
-            val yamlKeyValueParents = parameters.position.parents().filterIsInstance(YAMLKeyValue::class.java).toList()
+            val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
 
             if (yamlKeyValueParents.size == 2) {
                 return yamlKeyValueParents[1].name == "commands"
