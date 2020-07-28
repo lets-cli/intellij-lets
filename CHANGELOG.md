@@ -3,9 +3,6 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
-- Empty
-
-## [0.0.4]
 ### Added
 - specified idea-version
 ### Changed

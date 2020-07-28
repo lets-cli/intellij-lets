@@ -26,3 +26,16 @@ Is supports:
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template).
+
+## Releases
+
+Releases flow:
+
+- add new features to CHANGELOG.md to `[Unreleased]` section 
+- when ready to update version, go to `gradle.properties` and bump `pluginVersion`
+- merge to master
+- gitlab action will create a draft release with:
+    - version from `gradle.properties`
+    - changelog from `[Unreleased]` section
+- when ready - publish draft release
+- add new section to CHANGELOG.md with new published version
