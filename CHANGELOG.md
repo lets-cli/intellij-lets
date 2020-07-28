@@ -5,6 +5,12 @@
 ## [Unreleased]
 - Empty
 
+## [0.0.4]
+### Added
+- specified idea-version
+### Changed
+- delete deprecated
+
 ## [0.0.3]
 ### Added
 - pluginIcon svg

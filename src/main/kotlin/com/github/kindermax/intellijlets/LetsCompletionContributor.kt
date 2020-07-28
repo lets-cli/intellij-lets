@@ -53,7 +53,7 @@ open class LetsCompletionContributor : CompletionContributor() {
          * 2. Add tests
          */
         fun isCommandLevel(parameters: CompletionParameters): Boolean {
-            val yamlKeyValueParents = parameters.position.parentsOfType(YAMLKeyValue::class.java).toList()
+            val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
 
             if (yamlKeyValueParents.size == 2) {
                 return yamlKeyValueParents[1].name == "commands"
