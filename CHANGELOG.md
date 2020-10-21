@@ -3,6 +3,8 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+
+## [0.0.5]
 ### Added
 - completion for depends directive
 
