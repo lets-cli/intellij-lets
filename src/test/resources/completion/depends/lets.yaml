@@ -1,0 +1,15 @@
+shell: bash
+commands:
+  hello:
+    cmd: echo Hello
+    depends: [world]
+
+  hi:
+    cmd: echo Hi
+
+  lol:
+    cmd: echo Lol
+
+  world:
+    depends: []
+    cmd: echo World

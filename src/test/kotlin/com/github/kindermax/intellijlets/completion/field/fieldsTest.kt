@@ -17,18 +17,18 @@ open class LetsLightCodeInsightTestCase :  LightPlatformCodeInsightFixture4TestC
         val letsFile = myFixture.copyFileToProject("/root/lets.yaml")
         myFixture.configureFromExistingVirtualFile(letsFile)
         val variants = myFixture.getCompletionVariants("/root/lets.yaml")
+                ?: return TestCase.fail("completion variants must not be null")
         val expected = listOf(
             "shell",
             "commands",
             "env",
             "eval_env",
             "version",
-            "mixins"
+            "mixins",
+            "before"
         )
 
-        TestCase.assertNotNull(variants)
-        variants?.containsAll(expected)?.let { TestCase.assertTrue(it) }
-        TestCase.assertEquals(variants?.size, 6)
+        TestCase.assertEquals(expected.sorted(), variants.sorted())
     }
 
     @Test
@@ -37,6 +37,7 @@ open class LetsLightCodeInsightTestCase :  LightPlatformCodeInsightFixture4TestC
         myFixture.configureFromExistingVirtualFile(letsFile)
         myFixture.editor.caretModel.primaryCaret.moveToOffset(35)
         val variants = myFixture.getCompletionVariants("/command/lets.yaml")
+                ?: return TestCase.fail("completion variants must not be null")
         val expected = listOf(
             "description",
             "checksum",
@@ -44,8 +45,21 @@ open class LetsLightCodeInsightTestCase :  LightPlatformCodeInsightFixture4TestC
             "cmd"
         )
 
-        TestCase.assertNotNull(variants)
-        variants?.containsAll(expected)?.let { TestCase.assertTrue(it) }
-        TestCase.assertEquals(variants?.size, 4)
+        TestCase.assertEquals(expected.sorted(), variants.sorted())
+    }
+
+    @Test
+    fun testDependsCompletionWorks() {
+        val letsFile = myFixture.copyFileToProject("/depends/lets.yaml")
+        myFixture.configureFromExistingVirtualFile(letsFile)
+        myFixture.editor.caretModel.primaryCaret.moveToOffset(146)
+        val variants = myFixture.getCompletionVariants("/depends/lets.yaml")
+                ?: return TestCase.fail("completion variants must not be null")
+
+        val expected = listOf(
+            "hi", "lol"
+        )
+
+        TestCase.assertEquals(expected.sorted(), variants.sorted())
     }
 }
