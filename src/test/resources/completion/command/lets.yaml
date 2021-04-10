@@ -1,4 +1,4 @@
 shell: bash
 commands:
   echo:
-    c
+    c<caret>
