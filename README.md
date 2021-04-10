@@ -39,3 +39,11 @@ Releases flow:
     - changelog from `[Unreleased]` section
 - when ready - publish draft release
 - add new section to CHANGELOG.md with new published version
+
+## Linting
+
+Project uses several tools to maintain code quality
+- https://ktlint.github.io/
+- https://detekt.github.io
+
+See https://detekt.github.io/detekt/ Rule Sets to get more info about `detekt` failed rules.

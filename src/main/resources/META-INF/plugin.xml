@@ -15,7 +15,7 @@
         <fileType
             name="lets"
             language="yaml"
-            implementationClass="com.github.kindermax.intellijlets.LetsFileType"
+            implementationClass="com.github.kindermax.intellijlets.FileType"
             extensions="yaml"
             fileNames="lets.yaml"
             patterns="lets.*.yaml"
