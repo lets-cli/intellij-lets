@@ -193,17 +193,15 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
         context: ProcessingContext,
         result: CompletionResultSet,
     ) {
-        if (isRootLevel(parameters)) {
-            for (keyword in TOP_LEVEL_KEYWORDS) {
-                result.addElement(LookupElementBuilder.create(keyword))
+        when {
+            isRootLevel(parameters) -> {
+                result.addAllElements(TOP_LEVEL_KEYWORDS.map { keyword -> LookupElementBuilder.create(keyword) })
             }
-        } else if (isCommandLevel(parameters)) {
-            for (keyword in COMMAND_LEVEL_KEYWORDS) {
-                result.addElement(LookupElementBuilder.create(keyword))
+            isCommandLevel(parameters) -> {
+                result.addAllElements(COMMAND_LEVEL_KEYWORDS.map { keyword -> LookupElementBuilder.create(keyword) })
             }
-        } else if (isDependsLevel(parameters)) {
-            for (keyword in getCommandsNames(parameters)) {
-                result.addElement(LookupElementBuilder.create(keyword))
+            isDependsLevel(parameters) -> {
+                result.addAllElements(getCommandsNames(parameters).map { keyword -> LookupElementBuilder.create(keyword) })
             }
         }
     }
