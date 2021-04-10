@@ -11,5 +11,5 @@ commands:
     cmd: echo Lol
 
   world:
-    depends: []
+    depends: [<caret>]
     cmd: echo World

@@ -1,10 +1,10 @@
 package com.github.kindermax.intellijlets.completion.field
 
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixture4TestCase
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
 
-open class LetsLightCodeInsightTestCase : LightPlatformCodeInsightFixture4TestCase() {
+open class LetsLightCodeInsightTestCase : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
         return "src/test/resources/completion"
@@ -33,7 +33,6 @@ open class LetsLightCodeInsightTestCase : LightPlatformCodeInsightFixture4TestCa
     fun testCommandCompletionWithCLetter() {
         val letsFile = myFixture.copyFileToProject("/command/lets.yaml")
         myFixture.configureFromExistingVirtualFile(letsFile)
-        myFixture.editor.caretModel.primaryCaret.moveToOffset(35)
         val variants = myFixture.getCompletionVariants("/command/lets.yaml")
             ?: return TestCase.fail("completion variants must not be null")
         val expected = listOf(
@@ -50,7 +49,6 @@ open class LetsLightCodeInsightTestCase : LightPlatformCodeInsightFixture4TestCa
     fun testDependsCompletionWorks() {
         val letsFile = myFixture.copyFileToProject("/depends/lets.yaml")
         myFixture.configureFromExistingVirtualFile(letsFile)
-        myFixture.editor.caretModel.primaryCaret.moveToOffset(146)
         val variants = myFixture.getCompletionVariants("/depends/lets.yaml")
             ?: return TestCase.fail("completion variants must not be null")
 
