@@ -2,10 +2,12 @@ package com.github.kindermax.intellijlets
 
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.parentsOfType
 import org.jetbrains.yaml.psi.YAMLDocument
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 
 const val DEPENDS_LEVEL = 3
@@ -32,7 +34,7 @@ val COMMAND_LEVEL_KEYWORDS = arrayOf(
     "after"
 )
 
-class LetsConfigUtils {
+object LetsConfigUtils {
 
     /**
      * Check if current position is in command context. It means:
@@ -184,5 +186,163 @@ class LetsConfigUtils {
             .filterNot { command -> excludeList.contains(command) }
             .toSet()
             .toList()
+    }
+}
+
+typealias Env = Map<String, String>
+
+data class Command(
+    val name: String,
+    val cmd: String, // TODO can be array or map
+    val env: Env,
+    val evalEnv: Env,
+    val depends: List<String>,
+)
+
+class ConfigParseException(message: String) : Exception(message)
+class CommandParseException(message: String) : Exception(message)
+
+class Config(
+    val shell: String,
+    val commands: List<Command>,
+    val env: Env,
+    val evalEnv: Env,
+    val before: String,
+) {
+
+    companion object Parser {
+        fun parseFromPSI(file: PsiFile): Config {
+            return when (val child = file.firstChild) {
+                is YAMLDocument -> {
+                    when (val value = child.topLevelValue) {
+                        is YAMLMapping -> parseConfigFromMapping(value)
+                        else -> throw ConfigParseException("failed to parse config: not a valid document")
+                    }
+                }
+                else -> throw ConfigParseException("failed to parse config: not a valid yaml")
+            }
+        }
+
+        private fun parseEnv(keyValue: YAMLKeyValue): Env {
+            return when (val value = keyValue.value) {
+                is YAMLMapping -> value.keyValues.associate { kv -> kv.keyText to kv.valueText }
+                else -> emptyMap()
+            }
+        }
+
+        private fun parseShell(keyValue: YAMLKeyValue): String {
+            return keyValue.valueText
+        }
+
+        // TODO handle cms as map
+        private fun parseCmd(keyValue: YAMLKeyValue): String {
+            return when (val value = keyValue.value) {
+                is YAMLScalar -> value.text
+                is YAMLSequence -> value.items.mapNotNull { it.value?.text }.joinToString(" ")
+                else -> ""
+            }
+        }
+
+        private fun parseDepends(keyValue: YAMLKeyValue): List<String> {
+            return when (val value = keyValue.value) {
+                is YAMLSequence -> value.items.mapNotNull { it.value?.text }
+                else -> emptyList()
+            }
+        }
+
+        private fun parseBefore(keyValue: YAMLKeyValue): String {
+            return when (val value = keyValue.value) {
+                is YAMLScalar -> value.textValue
+                else -> ""
+            }
+        }
+
+        private fun parseCommand(keyValue: YAMLKeyValue): Command {
+            val name = keyValue.keyText
+            var cmd = ""
+            var env: Env = emptyMap()
+            var evalEnv: Env = emptyMap()
+            var depends = emptyList<String>()
+
+            when (val value = keyValue.value) {
+                is YAMLMapping -> {
+                    value.keyValues.forEach {
+                        kv ->
+                        when (kv.keyText) {
+                            "cmd" -> {
+                                cmd = parseCmd(kv)
+                            }
+                            "env" -> {
+                                env = parseEnv(kv)
+                            }
+                            "eval_env" -> {
+                                evalEnv = parseEnv(kv)
+                            }
+                            "depends" -> {
+                                depends = parseDepends(kv)
+                            }
+                        }
+                    }
+                }
+                else -> throw CommandParseException("failed to parse command $name")
+            }
+
+            return Command(
+                name,
+                cmd,
+                env,
+                evalEnv,
+                depends,
+            )
+        }
+
+        private fun parseCommands(keyValue: YAMLKeyValue): List<Command> {
+            val commands = mutableListOf<Command>()
+            when (val value = keyValue.value) {
+                is YAMLMapping -> {
+                    value.keyValues.forEach { kv ->
+                        commands.add(parseCommand(kv))
+                    }
+                }
+            }
+            return commands
+        }
+
+        private fun parseConfigFromMapping(mapping: YAMLMapping): Config {
+            var shell = ""
+            var commands = emptyList<Command>()
+            var env: Env = emptyMap()
+            var evalEnv: Env = emptyMap()
+            var before = ""
+
+            mapping.keyValues.forEach {
+                kv ->
+                when (kv.keyText) {
+                    "shell" -> {
+                        shell = parseShell(kv)
+                    }
+                    "env" -> {
+                        env = parseEnv(kv)
+                    }
+                    "eval_env" -> {
+                        evalEnv = parseEnv(kv)
+                    }
+                    "before" -> {
+                        before = parseBefore(kv)
+                    }
+                    "commands" -> {
+                        commands = parseCommands(kv)
+                    }
+                }
+            }
+
+            return Config(
+                shell,
+                commands,
+                env,
+                evalEnv,
+                before,
+            )
+        }
     }
 }
