@@ -3,6 +3,13 @@
 
 formatting:
   Indentation:
-    continuationIndentSize: 8
+    continuationIndentSize: 4
   ParameterListWrapping:
-    indentSize: 8
+    indentSize: 4
+  ImportOrdering:
+    active: false
+
+style:
+  ReturnCount:
+    active: true
+    max: 4

@@ -120,4 +120,3 @@ tasks {
         channels(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first())
     }
 }
-
