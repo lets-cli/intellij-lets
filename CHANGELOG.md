@@ -3,6 +3,9 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+### Updated
+- updated gradle config
+- use new kotlin runtime version
 
 ## [0.0.5]
 ### Added
