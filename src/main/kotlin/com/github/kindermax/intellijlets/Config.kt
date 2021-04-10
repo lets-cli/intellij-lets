@@ -70,9 +70,10 @@ class LetsConfigUtils {
      * Return current command name. Must be called only when in command scope
      */
     fun getCurrentCommand(parameters: CompletionParameters): String {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        return yamlKeyValueParents[1].keyText
+        val yamlKVParents = parameters.position
+            .parentsOfType<YAMLKeyValue>(false)
+            .toList()
+        return yamlKVParents[1].keyText
     }
 
     /**
@@ -85,9 +86,9 @@ class LetsConfigUtils {
      * findParentKeyValueWithName(parameters, "commands") -> returns `commands` node
      */
     fun findParentKeyValueWithName(parameters: CompletionParameters, name: String): YAMLKeyValue? {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        return yamlKeyValueParents.find { item -> item.name == name }
+        return parameters.position
+            .parentsOfType<YAMLKeyValue>(false)
+            .find { item -> item.name == name }
     }
 
     /**
