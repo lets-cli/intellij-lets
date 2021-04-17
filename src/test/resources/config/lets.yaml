@@ -1,0 +1,27 @@
+shell: bash
+
+env:
+  DEBUG: false
+
+eval_env:
+  DAY: `echo Moday`
+
+before: echo Before
+
+commands:
+  run:
+    depends:
+      - install
+    env:
+      DEV: true
+    eval_env:
+      UID: `echo 1`
+    cmd: echo Run
+
+  install:
+    cmd: echo Install
+
+  build:
+    cmd:
+      - echo
+      - Build

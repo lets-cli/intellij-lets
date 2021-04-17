@@ -1,5 +1,8 @@
 shell: bash
 
 commands:
-  echo:
-    cmd: Hi
+  lint:
+    cmd: ./gradlew check
+
+  fmt:
+    cmd: ./gradlew ktlintFormat
