@@ -4,7 +4,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
 
-open class LetsLightCodeInsightTestCase : BasePlatformTestCase() {
+open class FieldsTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
         return "src/test/resources/completion"

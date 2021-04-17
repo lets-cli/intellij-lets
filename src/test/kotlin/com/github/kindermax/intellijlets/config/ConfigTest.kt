@@ -7,9 +7,8 @@ import com.github.kindermax.intellijlets.ConfigParseException
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
-import kotlin.test.assertFailsWith
 
-open class ConfigTestCase : BasePlatformTestCase() {
+open class ConfigTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
         return "src/test/resources/config"
@@ -60,11 +59,11 @@ open class ConfigTestCase : BasePlatformTestCase() {
         myFixture.configureFromExistingVirtualFile(letsFile)
         val file = myFixture.file
 
-        val exc = assertFailsWith<ConfigParseException>(
-            block = { Config.parseFromPSI(file) }
-        )
-
-        TestCase.assertEquals(exc.message, "failed to parse config: not a valid document")
+        try {
+            Config.parseFromPSI(file)
+        } catch (exc: ConfigParseException) {
+            TestCase.assertEquals(exc.message, "failed to parse config: not a valid document")
+        }
     }
 
     fun testParseBrokenCommand() {
@@ -72,10 +71,10 @@ open class ConfigTestCase : BasePlatformTestCase() {
         myFixture.configureFromExistingVirtualFile(letsFile)
         val file = myFixture.file
 
-        val exc = assertFailsWith<CommandParseException>(
-            block = { Config.parseFromPSI(file) }
-        )
-
-        TestCase.assertEquals(exc.message, "failed to parse command run")
+        try {
+            Config.parseFromPSI(file)
+        } catch (exc: CommandParseException) {
+            TestCase.assertEquals(exc.message, "failed to parse command run")
+        }
     }
 }

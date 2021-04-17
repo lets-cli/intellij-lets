@@ -1,8 +1,11 @@
 shell: bash
 
 commands:
-  lint:
+  check:
     cmd: ./gradlew check
 
   fmt:
     cmd: ./gradlew ktlintFormat
+
+  test:
+    cmd: ./gradlew test
