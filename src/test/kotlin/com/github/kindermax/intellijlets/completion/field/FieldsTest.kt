@@ -1,5 +1,6 @@
 package com.github.kindermax.intellijlets.completion.field
 
+import com.github.kindermax.intellijlets.DEFAULT_SHELLS
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
@@ -27,6 +28,15 @@ open class FieldsTest : BasePlatformTestCase() {
         )
 
         TestCase.assertEquals(expected.sorted(), variants.sorted())
+    }
+
+    @Test
+    fun testShellCompletion() {
+        val letsFile = myFixture.copyFileToProject("/shell/lets.yaml")
+        myFixture.configureFromExistingVirtualFile(letsFile)
+        val variants = myFixture.getCompletionVariants("/shell/lets.yaml")
+            ?: return TestCase.fail("completion variants must not be null")
+        TestCase.assertEquals(DEFAULT_SHELLS.sorted(), variants.sorted())
     }
 
     @Test

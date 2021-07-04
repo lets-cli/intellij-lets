@@ -3,7 +3,8 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
-## [0.0.6]
+### Added
+- add some default completions for `shell`
 ### Updated
 - drop support for 193 IDE version
 

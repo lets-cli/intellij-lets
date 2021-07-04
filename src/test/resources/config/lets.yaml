@@ -25,3 +25,7 @@ commands:
     cmd:
       - echo
       - Build
+  dev:
+    cmd:
+      app: echo App
+      db: echo Db

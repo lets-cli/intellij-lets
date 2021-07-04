@@ -32,6 +32,7 @@ open class ConfigTest : BasePlatformTestCase() {
                 Command(
                     "run",
                     "echo Run",
+                    emptyMap(),
                     mapOf("DEV" to "true"),
                     mapOf("UID" to "`echo 1`"),
                     listOf("install")
@@ -41,11 +42,24 @@ open class ConfigTest : BasePlatformTestCase() {
                     "echo Install",
                     emptyMap(),
                     emptyMap(),
+                    emptyMap(),
                     emptyList()
                 ),
                 Command(
                     "build",
                     "echo Build",
+                    emptyMap(),
+                    emptyMap(),
+                    emptyMap(),
+                    emptyList()
+                ),
+                Command(
+                    "dev",
+                    "",
+                    mapOf(
+                        "app" to "echo App",
+                        "db" to "echo Db",
+                    ),
                     emptyMap(),
                     emptyMap(),
                     emptyList()
