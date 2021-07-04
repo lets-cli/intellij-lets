@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: zulu
-          java-version: 8
+          java-version: 11
 
       # Check out current repository
       - name: Fetch Sources
@@ -56,8 +56,7 @@ jobs:
 
       # Run detekt, ktlint and tests
       - name: Run Linters and Test
-        run: ./gradlew test --info --stacktrace
-#        run: ./gradlew check
+        run: ./gradlew check
 
       # Run verifyPlugin Gradle task
       - name: Verify Plugin
@@ -81,7 +80,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: zulu
-          java-version: 8
+          java-version: 11
 
       # Check out current repository
       - name: Fetch Sources
@@ -142,7 +141,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: zulu
-          java-version: 8
+          java-version: 11
 
       # Check out current repository
       - name: Fetch Sources
