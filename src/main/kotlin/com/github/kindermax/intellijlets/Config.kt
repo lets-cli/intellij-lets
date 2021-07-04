@@ -38,6 +38,7 @@ class Config(
 ) {
 
     companion object Parser {
+        // TODO parse mixins
         fun parseFromPSI(file: PsiFile): Config {
             return when (val child = file.firstChild) {
                 is YAMLDocument -> {
@@ -83,6 +84,7 @@ class Config(
             }
         }
 
+        @Suppress("NestedBlockDepth")
         private fun parseCommand(keyValue: YAMLKeyValue): Command {
             val name = keyValue.keyText
             var cmd = ""
@@ -101,7 +103,8 @@ class Config(
                                 when (val cmdValue = kv.value) {
                                     is YAMLMapping -> {
                                         cmdAsMap = cmdValue.keyValues.associate {
-                                            cmdEntry -> cmdEntry.keyText to cmdEntry.valueText
+                                            cmdEntry ->
+                                            cmdEntry.keyText to cmdEntry.valueText
                                         }
                                     }
                                     else -> {
@@ -133,6 +136,7 @@ class Config(
             )
         }
 
+        @Suppress("NestedBlockDepth")
         private fun parseConfigFromMapping(mapping: YAMLMapping): Config {
             var shell = ""
             val commands = mutableListOf<Command>()

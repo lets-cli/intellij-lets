@@ -69,8 +69,13 @@ open class ConfigTest : BasePlatformTestCase() {
     }
 
     fun testParseBrokenConfig() {
-        val letsFile = myFixture.copyFileToProject("/lets_invalid_config.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            - aaa
+            - bb
+            """.trimIndent()
+        )
         val file = myFixture.file
 
         try {
@@ -81,8 +86,16 @@ open class ConfigTest : BasePlatformTestCase() {
     }
 
     fun testParseBrokenCommand() {
-        val letsFile = myFixture.copyFileToProject("/lets_invalid_command.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            commands:
+              run:
+                - foo
+                - bar
+            """.trimIndent()
+        )
         val file = myFixture.file
 
         try {

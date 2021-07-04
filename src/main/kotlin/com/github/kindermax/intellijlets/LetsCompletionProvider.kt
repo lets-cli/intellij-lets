@@ -18,7 +18,7 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
     ) {
         // TODO cache parsing ?
         val config = try {
-             Config.parseFromPSI(parameters.originalFile)
+            Config.parseFromPSI(parameters.originalFile)
         } catch (exp: ConfigException) {
             log.warning(exp.toString())
             return

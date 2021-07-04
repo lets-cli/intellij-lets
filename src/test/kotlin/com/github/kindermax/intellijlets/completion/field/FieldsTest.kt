@@ -7,15 +7,19 @@ import org.junit.Test
 
 open class FieldsTest : BasePlatformTestCase() {
 
-    override fun getTestDataPath(): String {
-        return "src/test/resources/completion"
-    }
-
     @Test
     fun testRootCompletion() {
-        val letsFile = myFixture.copyFileToProject("/root/lets.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
-        val variants = myFixture.getCompletionVariants("/root/lets.yaml")
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+    
+            commands:
+              run:
+                cmd: Echo Run
+            """.trimIndent()
+        )
+        val variants = myFixture.getCompletionVariants("lets.yaml")
             ?: return TestCase.fail("completion variants must not be null")
         val expected = listOf(
             "shell",
@@ -32,18 +36,30 @@ open class FieldsTest : BasePlatformTestCase() {
 
     @Test
     fun testShellCompletion() {
-        val letsFile = myFixture.copyFileToProject("/shell/lets.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
-        val variants = myFixture.getCompletionVariants("/shell/lets.yaml")
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: <caret>
+            """.trimIndent()
+        )
+        val variants = myFixture.getCompletionVariants("lets.yaml")
             ?: return TestCase.fail("completion variants must not be null")
         TestCase.assertEquals(DEFAULT_SHELLS.sorted(), variants.sorted())
     }
 
     @Test
     fun testCommandCompletionWithCLetter() {
-        val letsFile = myFixture.copyFileToProject("/command/lets.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
-        val variants = myFixture.getCompletionVariants("/command/lets.yaml")
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            commands:
+              echo:
+                c<caret>
+            """.trimIndent()
+        )
+
+        val variants = myFixture.getCompletionVariants("lets.yaml")
             ?: return TestCase.fail("completion variants must not be null")
         val expected = listOf(
             "description",
@@ -57,9 +73,24 @@ open class FieldsTest : BasePlatformTestCase() {
 
     @Test
     fun testDependsCompletionWorks() {
-        val letsFile = myFixture.copyFileToProject("/depends/lets.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
-        val variants = myFixture.getCompletionVariants("/depends/lets.yaml")
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            commands:
+              hello:
+                cmd: echo Hello
+                depends: [world]
+              hi:
+                cmd: echo Hi
+              lol:
+                cmd: echo Lol
+              world:
+                depends: [<caret>]
+                cmd: echo World
+            """.trimIndent()
+        )
+        val variants = myFixture.getCompletionVariants("lets.yaml")
             ?: return TestCase.fail("completion variants must not be null")
 
         val expected = listOf(

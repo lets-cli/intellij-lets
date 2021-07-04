@@ -1,5 +1,0 @@
-shell: bash
-
-commands:
-  run:
-    cmd: Echo Run
