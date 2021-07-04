@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 ### Updated
-- updated gradle config
+- updated gradle config and wrapper
 - use new kotlin runtime version 11
 - support 211 IDE version
 
