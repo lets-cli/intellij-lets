@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 ### Updated
+- drop support for 193 IDE version
+
+## [0.0.6]
+### Updated
 - updated gradle config and wrapper
 - use new kotlin runtime version 11
 - support 211 IDE version
