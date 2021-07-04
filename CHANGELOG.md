@@ -6,6 +6,7 @@
 ### Updated
 - updated gradle config
 - use new kotlin runtime version
+- support 211 IDE version
 
 ## [0.0.5]
 ### Added
