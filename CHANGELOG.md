@@ -3,6 +3,7 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+## [0.0.7]
 ### Added
 - add some default completions for `shell`
 - enhance completions for yaml keys (add :, new line, multiline)
