@@ -2,7 +2,7 @@ package com.github.kindermax.intellijlets
 
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.psi.util.parentsOfType
-import org.jetbrains.yaml.psi.YAMLDocument
+import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 
 object LetsCompletionHelper {
@@ -13,16 +13,6 @@ object LetsCompletionHelper {
             return yamlKeyValueParents[0].name == name
         }
         return false
-    }
-
-    /**
-     * Return current command name. Must be called only when in command scope
-     */
-    private fun getCurrentCommand(parameters: CompletionParameters): String {
-        val yamlKVParents = parameters.position
-            .parentsOfType<YAMLKeyValue>(false)
-            .toList()
-        return yamlKVParents[1].keyText
     }
 
     /**
@@ -49,7 +39,10 @@ object LetsCompletionHelper {
     }
 
     fun isRootLevel(parameters: CompletionParameters): Boolean {
-        return parameters.position.parent.parent.parent is YAMLDocument
+        return (
+            parameters.position.parent.parent.parent is YAMLFile ||
+                parameters.position.parent.parent.parent.parent is YAMLFile
+            )
     }
 
     fun isDependsLevel(parameters: CompletionParameters): Boolean {
@@ -62,6 +55,16 @@ object LetsCompletionHelper {
         return false
     }
 
+    private fun getDependsParentName(parameters: CompletionParameters): String? {
+        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
+
+        if (yamlKeyValueParents.size == DEPENDS_LEVEL) {
+            return yamlKeyValueParents[1].name
+        }
+
+        return ""
+    }
+
     /**
      * Get all possible depends suggestions for a command, except:
      * - itself
@@ -69,7 +72,7 @@ object LetsCompletionHelper {
      * - other commands which depend on current command
      */
     fun getDependsSuggestions(parameters: CompletionParameters, config: Config): List<String> {
-        val cmdName = getCurrentCommand(parameters)
+        val cmdName = getDependsParentName(parameters) ?: return emptyList()
         val cmd = config.commandsMap[cmdName] ?: return emptyList()
 
         val excludeList = mutableSetOf<String>()

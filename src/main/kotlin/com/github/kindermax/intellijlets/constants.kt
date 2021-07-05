@@ -2,13 +2,16 @@ package com.github.kindermax.intellijlets
 
 const val DEPENDS_LEVEL = 3
 
-val DEFAULT_SHELLS = arrayOf(
+const val COMMAND_CHILD_PADDING = 6
+const val ROOT_PADDING = 2
+
+val DEFAULT_SHELLS = listOf(
     "sh",
     "bash",
     "zsh",
 )
 
-val TOP_LEVEL_KEYWORDS = arrayOf(
+val TOP_LEVEL_KEYWORDS = listOf(
     "shell",
     "before",
     "commands",
@@ -18,7 +21,7 @@ val TOP_LEVEL_KEYWORDS = arrayOf(
     "mixins"
 )
 
-val COMMAND_LEVEL_KEYWORDS = arrayOf(
+val COMMAND_LEVEL_KEYWORDS = listOf(
     "description",
     "env",
     "eval_env",

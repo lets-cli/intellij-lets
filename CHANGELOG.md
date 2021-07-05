@@ -5,8 +5,12 @@
 ## [Unreleased]
 ### Added
 - add some default completions for `shell`
+- enhance completions for yaml keys (add :, new line, multiline)
+- add more tests
 ### Updated
 - drop support for 193 IDE version
+- refactor completion provider
+- refactor config, parse gracefully
 
 ## [0.0.6]
 ### Updated

@@ -47,3 +47,9 @@ Project uses several tools to maintain code quality
 - https://detekt.github.io
 
 See https://detekt.github.io/detekt/ Rule Sets to get more info about `detekt` failed rules.
+
+## Todo
+
+- add highlighting for shell script in cmd - https://plugins.jetbrains.com/docs/intellij/file-view-providers.html
+- read mixins - https://plugins.jetbrains.com/docs/intellij/psi-cookbook.html#how-do-i-find-a-file-if-i-know-its-name-but-don-t-know-the-path
+- insert not padded strings, but yaml elements

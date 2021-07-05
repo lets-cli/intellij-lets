@@ -28,6 +28,7 @@ class CommandParseException(message: String) : ConfigException(message)
  * Note that since we parse config during completion, the config itself may be broken at that moment,
  * so we should parse gracefully.
  */
+@Suppress("LongParameterList")
 class Config(
     val shell: String,
     val commands: List<Command>,
@@ -35,6 +36,7 @@ class Config(
     val env: Env,
     val evalEnv: Env,
     val before: String,
+    val specifiedDirectives: Set<String>,
 ) {
 
     companion object Parser {
@@ -44,11 +46,23 @@ class Config(
                 is YAMLDocument -> {
                     when (val value = child.topLevelValue) {
                         is YAMLMapping -> parseConfigFromMapping(value)
-                        else -> throw ConfigParseException("failed to parse config: not a valid document")
+                        else -> defaultConfig()
                     }
                 }
-                else -> throw ConfigParseException("failed to parse config: not a valid yaml")
+                else -> defaultConfig()
             }
+        }
+
+        private fun defaultConfig(): Config {
+            return Config(
+                "",
+                emptyList(),
+                emptyMap(),
+                emptyMap(),
+                emptyMap(),
+                "",
+                emptySet(),
+            )
         }
 
         private fun parseEnv(keyValue: YAMLKeyValue): Env {
@@ -144,6 +158,7 @@ class Config(
             var env: Env = emptyMap()
             var evalEnv: Env = emptyMap()
             var before = ""
+            val specifiedDirectives = mutableSetOf<String>()
 
             mapping.keyValues.forEach {
                 kv ->
@@ -172,6 +187,7 @@ class Config(
                         }
                     }
                 }
+                specifiedDirectives.add(kv.keyText)
             }
 
             return Config(
@@ -181,6 +197,7 @@ class Config(
                 env,
                 evalEnv,
                 before,
+                specifiedDirectives,
             )
         }
     }
