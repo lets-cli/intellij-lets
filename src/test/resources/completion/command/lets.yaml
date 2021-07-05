@@ -1,4 +1,0 @@
-shell: bash
-commands:
-  echo:
-    c<caret>

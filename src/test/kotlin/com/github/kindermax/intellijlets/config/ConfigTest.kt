@@ -32,6 +32,7 @@ open class ConfigTest : BasePlatformTestCase() {
                 Command(
                     "run",
                     "echo Run",
+                    emptyMap(),
                     mapOf("DEV" to "true"),
                     mapOf("UID" to "`echo 1`"),
                     listOf("install")
@@ -41,11 +42,24 @@ open class ConfigTest : BasePlatformTestCase() {
                     "echo Install",
                     emptyMap(),
                     emptyMap(),
+                    emptyMap(),
                     emptyList()
                 ),
                 Command(
                     "build",
                     "echo Build",
+                    emptyMap(),
+                    emptyMap(),
+                    emptyMap(),
+                    emptyList()
+                ),
+                Command(
+                    "dev",
+                    "",
+                    mapOf(
+                        "app" to "echo App",
+                        "db" to "echo Db",
+                    ),
                     emptyMap(),
                     emptyMap(),
                     emptyList()
@@ -55,8 +69,13 @@ open class ConfigTest : BasePlatformTestCase() {
     }
 
     fun testParseBrokenConfig() {
-        val letsFile = myFixture.copyFileToProject("/lets_invalid_config.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            - aaa
+            - bb
+            """.trimIndent()
+        )
         val file = myFixture.file
 
         try {
@@ -67,8 +86,16 @@ open class ConfigTest : BasePlatformTestCase() {
     }
 
     fun testParseBrokenCommand() {
-        val letsFile = myFixture.copyFileToProject("/lets_invalid_command.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            commands:
+              run:
+                - foo
+                - bar
+            """.trimIndent()
+        )
         val file = myFixture.file
 
         try {

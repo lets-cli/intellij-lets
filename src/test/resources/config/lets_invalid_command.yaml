@@ -1,6 +1,0 @@
-shell: bash
-
-commands:
-  run:
-    - foo
-    - bar
