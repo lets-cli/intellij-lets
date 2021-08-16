@@ -40,6 +40,19 @@ Releases flow:
 - when ready - publish draft release
 - add new section to CHANGELOG.md with new published version
 
+## Issue new IDE compatible version
+
+When new IDE version is released we need to release new `lets` plugin version.
+
+1. Open `gradle.properties`
+  - change `pluginUntilBuild` to new ide version (for example from `211.*` to `212.*`)
+  - increment `pluginVersion`
+  - maybe change `platformVersion`
+  - maybe change `pluginVerifierIdeVersions`
+2. Open `CHANGELOG.md`
+  - Add info to `Unreleased` section.
+3. Create new branch, merge into main.
+
 ## Linting
 
 Project uses several tools to maintain code quality
