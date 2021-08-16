@@ -3,6 +3,9 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+### Updated
+- support 212 IDE version
+
 ## [0.0.7]
 ### Added
 - add some default completions for `shell`
