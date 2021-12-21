@@ -3,6 +3,7 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+## [0.0.9]
 - support 213 IDE version
 
 ## [0.0.8]
