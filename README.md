@@ -5,6 +5,8 @@
 <!-- Plugin description -->
 This IntelliJ plugin provides support for https://github.com/lets-cli/lets task runner.
 
+[Plugin](https://plugins.jetbrains.com/plugin/14639-lets) on JetBrains Marketplace
+
 Is supports:
 
 - file type recognition for `lets.yaml` and `lets.*.yaml` configs
@@ -37,6 +39,7 @@ Releases flow:
 - gitlab action will create a draft release with:
     - version from `gradle.properties`
     - changelog from `[Unreleased]` section
+    
 - when ready - publish draft release
 - add new section to CHANGELOG.md with new published version
 
@@ -52,6 +55,11 @@ When new IDE version is released we need to release new `lets` plugin version.
 2. Open `CHANGELOG.md`
   - Add info to `Unreleased` section.
 3. Create new branch, merge into main.
+4. GitHub will run tests and verification on master, and create new draft tag with version from `pluginVersion`
+5. Open new draft tag and publish it.
+6. GitHub will run an action for that published tag and:
+  - will publish lets plugin to JetBrains Marketplace
+  - update CHANGELOG.md
 
 ## Linting
 
