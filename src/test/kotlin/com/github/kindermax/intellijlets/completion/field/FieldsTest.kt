@@ -2,12 +2,9 @@ package com.github.kindermax.intellijlets.completion.field
 
 import com.github.kindermax.intellijlets.DEFAULT_SHELLS
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import junit.framework.TestCase
-import org.junit.Test
 
 open class FieldsTest : BasePlatformTestCase() {
 
-    @Test
     fun testRootCompletion() {
         myFixture.configureByText(
             "lets.yaml",
@@ -22,7 +19,8 @@ open class FieldsTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val variants = myFixture.getCompletionVariants("lets.yaml")
-            ?: return TestCase.fail("completion variants must not be null")
+        assertNotNull(variants)
+
         val expected = listOf(
             "env",
             "eval_env",
@@ -31,10 +29,9 @@ open class FieldsTest : BasePlatformTestCase() {
             "before"
         )
 
-        TestCase.assertEquals(expected.sorted(), variants.sorted())
+        assertEquals(expected.sorted(), variants?.sorted())
     }
 
-    @Test
     fun testShellCompletion() {
         myFixture.configureByText(
             "lets.yaml",
@@ -43,11 +40,10 @@ open class FieldsTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val variants = myFixture.getCompletionVariants("lets.yaml")
-            ?: return TestCase.fail("completion variants must not be null")
-        TestCase.assertEquals(DEFAULT_SHELLS.sorted(), variants.sorted())
+        assertNotNull(variants)
+        assertEquals(DEFAULT_SHELLS.sorted(), variants?.sorted())
     }
 
-    @Test
     fun testCommandCompletionWithCLetter() {
         myFixture.configureByText(
             "lets.yaml",
@@ -60,7 +56,8 @@ open class FieldsTest : BasePlatformTestCase() {
         )
 
         val variants = myFixture.getCompletionVariants("lets.yaml")
-            ?: return TestCase.fail("completion variants must not be null")
+        assertNotNull(variants)
+
         val expected = listOf(
             "description",
             "checksum",
@@ -68,10 +65,9 @@ open class FieldsTest : BasePlatformTestCase() {
             "cmd"
         )
 
-        TestCase.assertEquals(expected.sorted(), variants.sorted())
+        assertEquals(expected.sorted(), variants?.sorted())
     }
 
-    @Test
     fun testCommandOptionsCompletionOnlyOptions() {
         myFixture.configureByText(
             "lets.yaml",
@@ -85,20 +81,19 @@ open class FieldsTest : BasePlatformTestCase() {
 
         myFixture.completeBasic()
 
-        TestCase.assertEquals(myFixture.caretOffset, 63)
-        TestCase.assertEquals(
+        assertEquals(myFixture.caretOffset, 63)
+        assertEquals(
             myFixture.file.text.trimIndent(),
             """
             shell: bash
             commands:
               echo:
                 options: |
-                  Usage: lets 
+                  Usage: lets
             """.trimIndent()
         )
     }
 
-    @Test
     fun testCommandOptionsCompletionNotOnlyOptions() {
         myFixture.configureByText(
             "lets.yaml",
@@ -113,8 +108,8 @@ open class FieldsTest : BasePlatformTestCase() {
 
         myFixture.completeBasic()
 
-        TestCase.assertEquals(myFixture.caretOffset, 80)
-        TestCase.assertEquals(
+        assertEquals(myFixture.caretOffset, 80)
+        assertEquals(
             myFixture.file.text.trimIndent(),
             """
             shell: bash
@@ -127,7 +122,6 @@ open class FieldsTest : BasePlatformTestCase() {
         )
     }
 
-    @Test
     fun testDependsCompletionWorks() {
         myFixture.configureByText(
             "lets.yaml",
@@ -147,16 +141,15 @@ open class FieldsTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val variants = myFixture.getCompletionVariants("lets.yaml")
-            ?: return TestCase.fail("completion variants must not be null")
+        assertNotNull(variants)
 
         val expected = listOf(
             "hi", "lol"
         )
 
-        TestCase.assertEquals(expected.sorted(), variants.sorted())
+        assertEquals(expected.sorted(), variants?.sorted())
     }
 
-    @Test
     fun testDependsCompletionWorksNoCommandYet() {
         myFixture.configureByText(
             "lets.yaml",
@@ -171,14 +164,13 @@ open class FieldsTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val variants = myFixture.getCompletionVariants("lets.yaml")
-            ?: return TestCase.fail("completion variants must not be null")
+        assertNotNull(variants)
 
         val expected = listOf("hi")
 
-        TestCase.assertEquals(expected.sorted(), variants.sorted())
+        assertEquals(expected.sorted(), variants?.sorted())
     }
 
-    @Test
     fun testCommandDependsCompletionArray() {
         myFixture.configureByText(
             "lets.yaml",
@@ -192,14 +184,14 @@ open class FieldsTest : BasePlatformTestCase() {
 
         myFixture.completeBasic()
 
-        TestCase.assertEquals(
+        assertEquals(
             myFixture.file.text,
             """
             shell: bash
             commands:
               echo:
                 depends:
-                  - 
+                  -
             """.trimIndent()
         )
     }

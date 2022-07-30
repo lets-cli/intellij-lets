@@ -8,11 +8,11 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.5.10"
+    id("org.jetbrains.kotlin.jvm") version "1.6.10"
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.0"
+    id("org.jetbrains.intellij") version "1.4.0"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
-    id("org.jetbrains.changelog") version "1.1.2"
+    id("org.jetbrains.changelog") version "1.3.1"
     // detekt linter - read more: https://detekt.github.io/detekt/gradle.html
     id("io.gitlab.arturbosch.detekt") version "1.17.1"
     // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
@@ -48,8 +48,8 @@ intellij {
 // Configure gradle-changelog-plugin plugin.
 // Read more: https://github.com/JetBrains/gradle-changelog-plugin
 changelog {
-    version = properties("pluginVersion")
-    groups = emptyList()
+    version.set(properties("pluginVersion"))
+    groups.set(emptyList())
 }
 
 // Configure detekt plugin.
@@ -66,16 +66,18 @@ detekt {
 }
 
 tasks {
-    withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
-    }
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    withType<Detekt> {
-        jvmTarget = "11"
+    // Set the JVM compatibility versions
+    properties("javaVersion").let {
+        withType<JavaCompile> {
+            sourceCompatibility = it
+            targetCompatibility = it
+        }
+        withType<KotlinCompile> {
+            kotlinOptions.jvmTarget = it
+        }
+        withType<Detekt> {
+            jvmTarget = it
+        }
     }
 
     patchPluginXml {
