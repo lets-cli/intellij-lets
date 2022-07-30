@@ -3,6 +3,9 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+- support 222 IDE version
+- drop support for 2021.1
+
 ## [0.0.11]
 - support 221 IDE version
 
