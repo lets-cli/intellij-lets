@@ -3,6 +3,8 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+
+## [0.0.12]
 - support 222 IDE version
 - drop support for 2021.1
 
@@ -21,6 +23,7 @@
 - add some default completions for `shell`
 - enhance completions for yaml keys (add :, new line, multiline)
 - add more tests
+
 ### Updated
 - drop support for 193 IDE version
 - refactor completion provider
@@ -39,12 +42,14 @@
 ## [0.0.4]
 ### Added
 - specified idea-version
+
 ### Changed
 - delete deprecated
 
 ## [0.0.3]
 ### Added
 - pluginIcon svg
+
 ### Changed
 - replace png filetype icon with svg
 
