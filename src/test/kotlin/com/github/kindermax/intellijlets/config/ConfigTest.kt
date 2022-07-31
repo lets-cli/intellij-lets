@@ -5,8 +5,6 @@ import com.github.kindermax.intellijlets.CommandParseException
 import com.github.kindermax.intellijlets.Config
 import com.github.kindermax.intellijlets.ConfigParseException
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import junit.framework.TestCase
-import org.junit.Test
 
 open class ConfigTest : BasePlatformTestCase() {
 
@@ -14,7 +12,6 @@ open class ConfigTest : BasePlatformTestCase() {
         return "src/test/resources/config"
     }
 
-    @Test
     fun testParseConfigSuccess() {
         val letsFile = myFixture.copyFileToProject("/lets.yaml")
         myFixture.configureFromExistingVirtualFile(letsFile)
@@ -22,11 +19,11 @@ open class ConfigTest : BasePlatformTestCase() {
 
         val config = Config.parseFromPSI(file)
 
-        TestCase.assertEquals(config.shell, "bash")
-        TestCase.assertEquals(config.before, "echo Before")
-        TestCase.assertEquals(config.env, mapOf("DEBUG" to "false"))
-        TestCase.assertEquals(config.evalEnv, mapOf("DAY" to "`echo Moday`"))
-        TestCase.assertEquals(
+        assertEquals(config.shell, "bash")
+        assertEquals(config.before, "echo Before")
+        assertEquals(config.env, mapOf("DEBUG" to "false"))
+        assertEquals(config.evalEnv, mapOf("DAY" to "`echo Moday`"))
+        assertEquals(
             config.commands,
             listOf<Command>(
                 Command(
@@ -81,7 +78,7 @@ open class ConfigTest : BasePlatformTestCase() {
         try {
             Config.parseFromPSI(file)
         } catch (exc: ConfigParseException) {
-            TestCase.assertEquals(exc.message, "failed to parse config: not a valid document")
+            assertEquals(exc.message, "failed to parse config: not a valid document")
         }
     }
 
@@ -101,7 +98,7 @@ open class ConfigTest : BasePlatformTestCase() {
         try {
             Config.parseFromPSI(file)
         } catch (exc: CommandParseException) {
-            TestCase.assertEquals(exc.message, "failed to parse command run")
+            assertEquals(exc.message, "failed to parse command run")
         }
     }
 }
