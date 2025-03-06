@@ -3,7 +3,11 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+
+## [0.0.15] - 2025-03-06
+
 ### Updated
+
 - disable `pluginUntilBuild` in `build.gradle.kts` to support all future versions of IDEs
 
 ## [0.0.14] - 2025-03-06
@@ -99,7 +103,8 @@
 - file type recognition - `lets.yaml` and `lets.*.yaml` files will be recognized as lets configs
 - basic completion - for now it will autocomplete only top level keywords
 
-[Unreleased]: https://github.com/lets-cli/intellij-lets/compare/v0.0.14...HEAD
+[Unreleased]: https://github.com/lets-cli/intellij-lets/compare/v0.0.15...HEAD
+[0.0.15]: https://github.com/lets-cli/intellij-lets/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/lets-cli/intellij-lets/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/lets-cli/intellij-lets/compare/v0.0.11...v0.0.13
 [0.0.11]: https://github.com/lets-cli/intellij-lets/compare/v0.0.9...v0.0.11
