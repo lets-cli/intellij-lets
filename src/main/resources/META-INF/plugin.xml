@@ -10,6 +10,7 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
+    <idea-version since-build="241"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <fileType
@@ -24,6 +25,10 @@
             language="yaml"
             order="first"
             implementationClass="com.github.kindermax.intellijlets.LetsCompletionContributor"
+        />
+        <psi.referenceContributor
+          language="yaml"
+          implementation="com.github.kindermax.intellijlets.LetsReferenceContributor"
         />
     </extensions>
 </idea-plugin>
