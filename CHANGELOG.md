@@ -3,6 +3,8 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+### Updated
+- disable `pluginUntilBuild` in `build.gradle.kts` to support all future versions of IDEs
 
 ## [0.0.14] - 2025-03-06
 

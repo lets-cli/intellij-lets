@@ -39,7 +39,6 @@ class LetsMixinReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(ele
 
         // Search for the mixin file in the project
         val virtualFile = FilenameIndex.getVirtualFilesByName(
-            project,
             mixinFilename,
             GlobalSearchScope.allScope(project),
         ).firstOrNull() ?: return null
