@@ -83,14 +83,14 @@ open class FieldsTest : BasePlatformTestCase() {
 
         assertEquals(myFixture.caretOffset, 63)
         assertEquals(
-            myFixture.file.text.trimIndent(),
             """
             shell: bash
             commands:
               echo:
                 options: |
                   Usage: lets
-            """.trimIndent()
+            """.trimIndent() + " ",
+            myFixture.file.text.trimIndent(),
         )
     }
 
@@ -110,7 +110,6 @@ open class FieldsTest : BasePlatformTestCase() {
 
         assertEquals(myFixture.caretOffset, 80)
         assertEquals(
-            myFixture.file.text.trimIndent(),
             """
             shell: bash
             commands:
@@ -118,7 +117,8 @@ open class FieldsTest : BasePlatformTestCase() {
                 cmd: echo Hi
                 options: |
                   Usage: lets 
-            """.trimIndent()
+            """.trimIndent(),
+            myFixture.file.text.trimIndent(),
         )
     }
 
@@ -185,14 +185,14 @@ open class FieldsTest : BasePlatformTestCase() {
         myFixture.completeBasic()
 
         assertEquals(
-            myFixture.file.text,
             """
             shell: bash
             commands:
               echo:
                 depends:
                   -
-            """.trimIndent()
+            """.trimIndent() + " ",
+            myFixture.file.text,
         )
     }
 }
