@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Updated
+
+- make go to definition work for `mixins` files inside directories
+
 ## [0.0.15] - 2025-03-06
 
 ### Updated

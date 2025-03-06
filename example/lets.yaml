@@ -2,6 +2,7 @@ shell: bash
 
 mixins:
   - lets.build.yaml
+  - lets/lets.docs.yaml
 
 commands:
   test:
