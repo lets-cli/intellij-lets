@@ -80,10 +80,6 @@ intellijPlatform {
                 )
             }
         }
-
-        ideaVersion {
-            sinceBuild = providers.gradleProperty("pluginSinceBuild")
-        }
     }
 
     publishing {

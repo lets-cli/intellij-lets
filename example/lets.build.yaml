@@ -1,0 +1,5 @@
+shell: bash
+
+commands:
+  build:
+    cmd: echo Build

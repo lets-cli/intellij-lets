@@ -1,0 +1,13 @@
+shell: bash
+
+mixins:
+  - lets.build.yaml
+
+commands:
+  test:
+    depends: [build]
+    cmd: echo Test
+    
+  run:
+    depends: [test]
+    cmd: echo Run

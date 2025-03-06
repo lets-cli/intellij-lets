@@ -3,6 +3,12 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+### Added
+- add reference contributor for `mixins` files
+### Updated
+- actually make plugin support all future versions of IDEs
+
+## [0.0.13]
 ### Updated
 - make plugin support all future versions of IDEs (remove max version restriction)
 - support 2024 IDE version
