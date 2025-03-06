@@ -3,8 +3,10 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
-- support 222 IDE version
-- drop support for 2021.1
+### Updated
+- make plugin support all future versions of IDEs (remove max version restriction)
+- support 2024 IDE version
+- drop support for 2023.*
 
 ## [0.0.11]
 - support 221 IDE version

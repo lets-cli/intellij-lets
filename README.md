@@ -7,10 +7,16 @@ This IntelliJ plugin provides support for https://github.com/lets-cli/lets task 
 
 [Plugin](https://plugins.jetbrains.com/plugin/14639-lets) on JetBrains Marketplace
 
-Is supports:
+## Supports
 
-- file type recognition for `lets.yaml` and `lets.*.yaml` configs
-- autocomplete for config
+File type recognition for `lets.yaml` and `lets.*.yaml` configs
+
+- **Completion**
+  - Complete keywords
+    - Complete command `options` with code snippet
+    - Complete commands in `depends` with code snippet
+- **Go To Definition**
+  - Navigate to definitions of `mixins` files
 
 <!-- Plugin description end -->
 
@@ -43,15 +49,38 @@ Releases flow:
 - when ready - publish draft release
 - add new section to CHANGELOG.md with new published version
 
-## Issue new IDE compatible version
+### Changelog
 
+We are using [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format for changelog. This is the reason we 
+have `[Unreleased]` section in `CHANGELOG.md`. We must keep it up to date with every change we make. After release,
+CI automatically moves all changes from `[Unreleased]` to new section with version number.
+
+## IDE Breaking change upgrades
+
+### Minimal IDE version
+
+If plugin needs to use some new feature from IDE, we need to update `pluginSinceBuild` in `gradle.properties` to new IDE version.
 When new IDE version is released we need to release new `lets` plugin version.
 
+### Maximum IDE version
+
+We do not restrict maximum IDE version, so plugin should work with all future versions of IDE.
+
+If our plugin happens to be incompatible with future version of IDE because of some backward-incompatible changes, we have two options:
+
+1. Fix incompatibility in plugin code in a way that still keeps support for all versions specified by `pluginSinceBuild` and all future versions.
+2. Set `pluginUntilBuild` in `gradle.properties` to new IDE version and release new plugin version. Use this option only if there is no other way to fix incompatibility.
+ 
+> We never set `pluginUntilBuild` in `gradle.properties` to new IDE version, because if we do so,
+this will force us to release new version of plugin every time new IDE version is released.
+
+### How to upgrade supported IDE version
+
 1. Open `gradle.properties`
-  - change `pluginUntilBuild` to new ide version (for example from `211.*` to `212.*`)
-  - increment `pluginVersion`
+  - maybe change `pluginSinceBuild` to new ide version
   - maybe change `platformVersion`
   - maybe change `pluginVerifierIdeVersions`
+  - increment `pluginVersion`
 2. Open `CHANGELOG.md`
   - Add info to `Unreleased` section.
 3. Create new branch, merge into main.
