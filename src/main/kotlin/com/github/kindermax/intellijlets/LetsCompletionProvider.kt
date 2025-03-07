@@ -33,15 +33,15 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
 
         when {
             LetsCompletionHelper.isRootLevel(parameters) -> {
-                val suggestions = when (config.specifiedDirectives.size) {
+                val suggestions = when (config.keywordsInConfig.size) {
                     0 -> TOP_LEVEL_KEYWORDS
-                    else -> TOP_LEVEL_KEYWORDS.filterNot { config.specifiedDirectives.contains(it) }.toList()
+                    else -> TOP_LEVEL_KEYWORDS.filterNot { config.keywordsInConfig.contains(it) }.toList()
                 }
                 result.addAllElements(
                     suggestions.map { keyword ->
                         when (keyword) {
-                            "commands", "env", "eval_env" -> createRootKeyNewLineElement(keyword)
-                            "before" -> createRootKeyMultilineElement(keyword)
+                            "commands", "env" -> createRootKeyNewLineElement(keyword)
+                            "before", "init" -> createRootKeyMultilineElement(keyword)
                             "mixins" -> createRootKeyArrayElement(keyword)
                             else -> createRootKeyElement(keyword)
                         }
@@ -57,7 +57,7 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
                         when (keyword) {
                             "options" -> createOptionsElement()
                             "depends" -> createDependsElement()
-                            "env", "eval_env" -> createCommandKeyNewLineElement(keyword)
+                            "env" -> createCommandKeyNewLineElement(keyword)
                             else -> createCommandKeyElement(keyword)
                         }
                     }

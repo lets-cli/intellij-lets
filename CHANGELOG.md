@@ -3,6 +3,18 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+### Updated
+
+- make go to definition work for gitignore `mixins` files (with '-' (dash) at the beginning)
+- support global `init` in config parser and completion
+- support `sh` and `checksum` modes in `env` in config parser
+- support `ref` and `args` in command keyword completion
+- support `mixins` (both local and remote) in config parser
+- drop `eval_env`
+
+### Chore
+
+- add tests for reference contributor
 
 ## [0.0.16] - 2025-03-07
 

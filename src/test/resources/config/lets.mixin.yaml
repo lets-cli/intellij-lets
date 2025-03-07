@@ -1,0 +1,5 @@
+shell: bash
+
+commands:
+  test:
+    cmd: echo Test

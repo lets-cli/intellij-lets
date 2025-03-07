@@ -14,9 +14,9 @@ val DEFAULT_SHELLS = listOf(
 val TOP_LEVEL_KEYWORDS = listOf(
     "shell",
     "before",
+    "init",
     "commands",
     "env",
-    "eval_env",
     "version",
     "mixins"
 )
@@ -24,11 +24,13 @@ val TOP_LEVEL_KEYWORDS = listOf(
 val COMMAND_LEVEL_KEYWORDS = listOf(
     "description",
     "env",
-    "eval_env",
     "options",
     "checksum",
     "persist_checksum",
     "cmd",
+    "work_dir",
     "depends",
-    "after"
+    "after",
+    "ref",
+    "args",
 )

@@ -7,14 +7,27 @@ import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 
-typealias Env = Map<String, String>
+sealed class EnvValue {
+    data class StringValue(val value: String) : EnvValue()
+    data class ShMode(val sh: String) : EnvValue()
+    data class ChecksumMode(val files: List<String>) : EnvValue()
+    data class ChecksumMapMode(val files: Map<String, List<String>>) : EnvValue()
+}
+
+typealias Env = Map<String, EnvValue>
+
+sealed class Mixin {
+    data class Local(val path: String) : Mixin()
+    data class Remote(val url: String, val version: String) : Mixin()
+}
+
+typealias Mixins = List<Mixin>
 
 data class Command(
     val name: String,
     val cmd: String,
     val cmdAsMap: Map<String, String>,
     val env: Env,
-    val evalEnv: Env,
     val depends: List<String>,
 )
 
@@ -34,9 +47,11 @@ class Config(
     val commands: List<Command>,
     val commandsMap: Map<String, Command>,
     val env: Env,
-    val evalEnv: Env,
     val before: String,
-    val specifiedDirectives: Set<String>,
+    val init: String,
+    val mixins: Mixins,
+    // Keywords that are used in the config
+    val keywordsInConfig: Set<String>,
 ) {
 
     companion object Parser {
@@ -59,15 +74,44 @@ class Config(
                 emptyList(),
                 emptyMap(),
                 emptyMap(),
-                emptyMap(),
                 "",
+                "",
+                emptyList(),
                 emptySet(),
             )
         }
 
         private fun parseEnv(keyValue: YAMLKeyValue): Env {
             return when (val value = keyValue.value) {
-                is YAMLMapping -> value.keyValues.associate { kv -> kv.keyText to kv.valueText }
+                is YAMLMapping -> value.keyValues.associate {
+                    kv -> kv.keyText to when (kv.value) {
+                        is YAMLScalar -> EnvValue.StringValue(kv.valueText)
+                        is YAMLMapping -> {
+                            val kvv = kv.value as YAMLMapping
+                            kvv.getKeyValueByKey("sh")?.let {
+                                EnvValue.ShMode(it.valueText)
+                            } ?: kvv.getKeyValueByKey("checksum")?.let {
+                                when (it.value) {
+                                    is YAMLSequence -> {
+                                        EnvValue.ChecksumMode((it.value as YAMLSequence).items.mapNotNull { it.value?.text })
+                                    }
+
+                                    is YAMLMapping -> {
+                                        val checksumMap = it.value as YAMLMapping
+                                        EnvValue.ChecksumMapMode(checksumMap.keyValues.associate { entry ->
+                                            entry.keyText to (entry.value as YAMLSequence).items.mapNotNull { it.value?.text }
+                                        })
+                                    }
+
+                                    else -> {
+                                        EnvValue.ChecksumMode(emptyList())
+                                    }
+                                }
+                            } ?: EnvValue.StringValue("")
+                        }
+                        else -> EnvValue.StringValue("")
+                    }
+                }
                 else -> emptyMap()
             }
         }
@@ -98,13 +142,19 @@ class Config(
             }
         }
 
+        private fun parseInit(keyValue: YAMLKeyValue): String {
+            return when (val value = keyValue.value) {
+                is YAMLScalar -> value.textValue
+                else -> ""
+            }
+        }
+
         @Suppress("NestedBlockDepth")
         private fun parseCommand(keyValue: YAMLKeyValue): Command {
             val name = keyValue.keyText
             var cmd = ""
             var cmdAsMap = emptyMap<String, String>()
             var env: Env = emptyMap()
-            var evalEnv: Env = emptyMap()
             var depends = emptyList<String>()
 
             when (val value = keyValue.value) {
@@ -129,9 +179,6 @@ class Config(
                             "env" -> {
                                 env = parseEnv(kv)
                             }
-                            "eval_env" -> {
-                                evalEnv = parseEnv(kv)
-                            }
                             "depends" -> {
                                 depends = parseDepends(kv)
                             }
@@ -145,7 +192,6 @@ class Config(
                 cmd,
                 cmdAsMap,
                 env,
-                evalEnv,
                 depends,
             )
         }
@@ -153,12 +199,13 @@ class Config(
         @Suppress("NestedBlockDepth")
         private fun parseConfigFromMapping(mapping: YAMLMapping): Config {
             var shell = ""
+            val mixins = mutableListOf<Mixin>()
             val commands = mutableListOf<Command>()
             val commandsMap = mutableMapOf<String, Command>()
             var env: Env = emptyMap()
-            var evalEnv: Env = emptyMap()
             var before = ""
-            val specifiedDirectives = mutableSetOf<String>()
+            var init = ""
+            val keywordsInConfig = mutableSetOf<String>()
 
             mapping.keyValues.forEach {
                 kv ->
@@ -166,14 +213,32 @@ class Config(
                     "shell" -> {
                         shell = parseShell(kv)
                     }
+                    "mixins" -> {
+                        when (val value = kv.value) {
+                            is YAMLSequence -> {
+                                mixins.addAll(
+                                    value.items.mapNotNull { it.value }
+                                        .map { when (it) {
+                                            is YAMLScalar -> Mixin.Local(it.textValue)
+                                            is YAMLMapping -> {
+                                                val url = it.getKeyValueByKey("url")?.valueText ?: ""
+                                                val version = it.getKeyValueByKey("version")?.valueText ?: ""
+                                                Mixin.Remote(url, version)
+                                            }
+                                            else -> Mixin.Local("")
+                                        } }
+                                )
+                            }
+                        }
+                    }
                     "env" -> {
                         env = parseEnv(kv)
                     }
-                    "eval_env" -> {
-                        evalEnv = parseEnv(kv)
-                    }
                     "before" -> {
                         before = parseBefore(kv)
+                    }
+                    "init" -> {
+                        init = parseInit(kv)
                     }
                     "commands" -> {
                         when (val value = kv.value) {
@@ -187,7 +252,7 @@ class Config(
                         }
                     }
                 }
-                specifiedDirectives.add(kv.keyText)
+                keywordsInConfig.add(kv.keyText)
             }
 
             return Config(
@@ -195,9 +260,10 @@ class Config(
                 commands,
                 commandsMap,
                 env,
-                evalEnv,
                 before,
-                specifiedDirectives,
+                init,
+                mixins,
+                keywordsInConfig,
             )
         }
     }
