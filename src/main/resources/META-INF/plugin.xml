@@ -10,6 +10,8 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
+    <depends optional="true" config-file="sh.xml">com.jetbrains.sh</depends>
+
 
     <extensions defaultExtensionNs="com.intellij">
         <fileType

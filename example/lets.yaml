@@ -7,10 +7,16 @@ mixins:
 commands:
   test:
     depends: [build]
-    cmd: echo Test
+    cmd: echo ${LETS_COMMAND_NAME}
 
-  hello: echo Test
+  hello: echo Hello
 
   run:
     depends: [test, hello]
-    cmd: echo Run
+    cmd: |
+      set -ex
+      echo Run
+      echo Rff
+      if [ -n "${LE}" ]; then
+        exit 1
+      fi

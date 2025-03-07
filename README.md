@@ -17,14 +17,19 @@ File type recognition for `lets.yaml` and `lets.*.yaml` configs
     - [x] Complete commands in `depends` with code snippet
     - [ ] Complete commands in `depends` from mixins
     - [ ] Complete env mode in `env` with code snippet
+    - [ ] Complete environment variables in cmd scripts
 - **Go To Definition**
   - [x] Navigate to definitions of `mixins` files
   - [x] Navigate to definitions of optional `mixins` files (with - at the beginning)
   - [x] Navigate to definitions of `mixins` remote files (as http links)
-  - [ ] Navigate to definitions of commands in `depends`
+  - [x] Navigate to definitions of commands in `depends`
   - [ ] Navigate to definitions of commands in `depends` from mixins
 - **Highlighting**
-  - [ ] Highlighting for shell script in cmd
+  - [x] Highlighting for shell script in cmd
+- **Diagnostic**
+  - [ ] Diagnostic for missing `depends` commands
+  - [ ] Diagnostic for missing `mixins` files
+  - [ ] Diagnostic for errors in shell script
 
 <!-- Plugin description end -->
 
