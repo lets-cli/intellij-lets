@@ -8,7 +8,9 @@ commands:
   test:
     depends: [build]
     cmd: echo Test
-    
+
+  hello: echo Test
+
   run:
-    depends: [test]
+    depends: [test, hello]
     cmd: echo Run
