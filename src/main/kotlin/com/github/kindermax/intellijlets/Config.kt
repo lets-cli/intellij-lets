@@ -82,38 +82,41 @@ class Config(
         }
 
         private fun parseEnv(keyValue: YAMLKeyValue): Env {
-            return when (val value = keyValue.value) {
-                is YAMLMapping -> value.keyValues.associate {
-                    kv -> kv.keyText to when (kv.value) {
-                        is YAMLScalar -> EnvValue.StringValue(kv.valueText)
-                        is YAMLMapping -> {
-                            val kvv = kv.value as YAMLMapping
-                            kvv.getKeyValueByKey("sh")?.let {
-                                EnvValue.ShMode(it.valueText)
-                            } ?: kvv.getKeyValueByKey("checksum")?.let {
-                                when (it.value) {
-                                    is YAMLSequence -> {
-                                        EnvValue.ChecksumMode((it.value as YAMLSequence).items.mapNotNull { it.value?.text })
-                                    }
+            val value = keyValue.value as? YAMLMapping ?: return emptyMap()
 
-                                    is YAMLMapping -> {
-                                        val checksumMap = it.value as YAMLMapping
-                                        EnvValue.ChecksumMapMode(checksumMap.keyValues.associate { entry ->
-                                            entry.keyText to (entry.value as YAMLSequence).items.mapNotNull { it.value?.text }
-                                        })
-                                    }
+            return value.keyValues.associate { kv ->
+                kv.keyText to parseEnvValue(kv)
+            }
+        }
 
-                                    else -> {
-                                        EnvValue.ChecksumMode(emptyList())
-                                    }
+        private fun parseEnvValue(kv: YAMLKeyValue): EnvValue {
+            return when (val envValue = kv.value) {
+                is YAMLScalar -> EnvValue.StringValue(envValue.textValue)
+                is YAMLMapping -> parseMappingEnvValue(envValue)
+                else -> EnvValue.StringValue("")
+            }
+        }
+
+        private fun parseMappingEnvValue(value: YAMLMapping): EnvValue {
+            value.keyValues.forEach { kv ->
+                when (kv.keyText) {
+                    "sh" -> return EnvValue.ShMode(kv.valueText)
+                    "checksum" -> {
+                        return when (val checksumValue = kv.value) {
+                            is YAMLSequence -> EnvValue.ChecksumMode(
+                                checksumValue.items.mapNotNull { it.value?.text }
+                            )
+                            is YAMLMapping -> EnvValue.ChecksumMapMode(
+                                checksumValue.keyValues.associate { entry ->
+                                    entry.keyText to (entry.value as YAMLSequence).items.mapNotNull { it.value?.text }
                                 }
-                            } ?: EnvValue.StringValue("")
+                            )
+                            else -> EnvValue.StringValue("")
                         }
-                        else -> EnvValue.StringValue("")
                     }
                 }
-                else -> emptyMap()
             }
+            return EnvValue.StringValue("")
         }
 
         private fun parseShell(keyValue: YAMLKeyValue): String {
