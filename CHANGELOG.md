@@ -3,6 +3,10 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+### Added
+
+- resolve commands in `depends`
+
 ### Updated
 
 - make go to definition work for gitignore `mixins` files (with '-' (dash) at the beginning)

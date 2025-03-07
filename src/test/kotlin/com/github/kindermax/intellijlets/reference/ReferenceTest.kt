@@ -2,6 +2,7 @@ package com.github.kindermax.intellijlets.reference
 
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.jetbrains.yaml.psi.YAMLKeyValue
 
 open class MinixsReferenceTest : BasePlatformTestCase() {
     fun testMixinFileReference() {
@@ -120,3 +121,34 @@ open class MinixsReferenceTest : BasePlatformTestCase() {
     }
 }
 
+open class DependsReferenceTest : BasePlatformTestCase() {
+    fun testDependsCommandReference() {
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+
+            commands:
+              test:
+                cmd: echo Test
+
+              run:
+                depends: [<caret>test]
+                cmd: echo Run
+            """.trimIndent()
+        )
+
+        val ref = myFixture.getReferenceAtCaretPosition("lets.yaml")
+        assertNotNull("Reference should not be null", ref)
+
+        val resolvedElement = ref!!.resolve()
+        assertNotNull("Resolved element should not be null", resolvedElement)
+
+        val resolvedFile = resolvedElement?.containingFile
+        assertEquals("lets.yaml", resolvedFile?.name)
+
+        val resolvedKey = resolvedElement as? YAMLKeyValue
+        assertNotNull("Resolved element should be a YAMLKeyValue", resolvedKey)
+        assertEquals("test", resolvedKey!!.keyText)
+    }
+}
