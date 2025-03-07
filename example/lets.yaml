@@ -9,12 +9,18 @@ commands:
     depends: [build]
     cmd: echo ${LETS_COMMAND_NAME}
 
-  hello: echo Hello
+  hello:
+    cmd: echo Hello ${LETS_COMMAND_NAME} and $
+    env:
+      f: 1
+    options: |
+      Usage: lets ${LETS_COMMAND_NAME}
 
   run:
     depends: [test, hello]
     cmd: |
       set -ex
+      $L
       echo Run
       echo Rff
       if [ -n "${LE}" ]; then

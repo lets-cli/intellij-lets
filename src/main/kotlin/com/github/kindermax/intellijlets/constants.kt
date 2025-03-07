@@ -34,3 +34,14 @@ val COMMAND_LEVEL_KEYWORDS = listOf(
     "ref",
     "args",
 )
+
+val BUILTIN_ENV_VARIABLES  = listOf(
+    "LETS_COMMAND_NAME",
+    "LETS_COMMAND_ARGS",
+    "LETS_COMMAND_WORK_DIR",
+    "LETS_CONFIG",
+    "LETS_CONFIG_DIR",
+    "LETS_SHELL",
+)
+
+// TODO: support LETSOPT_ and LETSCLI_ if options is available

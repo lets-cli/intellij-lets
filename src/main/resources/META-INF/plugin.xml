@@ -27,6 +27,14 @@
             order="first"
             implementationClass="com.github.kindermax.intellijlets.LetsCompletionContributor"
         />
+        <completion.contributor
+            language="yaml"
+            implementationClass="com.github.kindermax.intellijlets.LetsEnvVariableCompletionContributor"
+        />
+        <completion.contributor
+            language="Shell Script"
+            implementationClass="com.github.kindermax.intellijlets.LetsEnvVariableShellScriptCompletionContributor"
+        />
         <psi.referenceContributor
           language="yaml"
           implementation="com.github.kindermax.intellijlets.LetsReferenceContributor"
