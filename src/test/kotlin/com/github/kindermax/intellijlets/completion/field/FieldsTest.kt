@@ -23,10 +23,10 @@ open class FieldsTest : BasePlatformTestCase() {
 
         val expected = listOf(
             "env",
-            "eval_env",
             "version",
             "mixins",
-            "before"
+            "before",
+            "init"
         )
 
         assertEquals(expected.sorted(), variants?.sorted())

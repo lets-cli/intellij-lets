@@ -13,10 +13,18 @@ File type recognition for `lets.yaml` and `lets.*.yaml` configs
 
 - **Completion**
   - Complete keywords
-    - Complete command `options` with code snippet
-    - Complete commands in `depends` with code snippet
+    - [x] Complete command `options` with code snippet
+    - [x] Complete commands in `depends` with code snippet
+    - [ ] Complete commands in `depends` from mixins
+    - [ ] Complete env mode in `env` with code snippet
 - **Go To Definition**
-  - Navigate to definitions of `mixins` files
+  - [x] Navigate to definitions of `mixins` files
+  - [x] Navigate to definitions of optional `mixins` files (with - at the beginning)
+  - [x] Navigate to definitions of `mixins` remote files (as http links)
+  - [ ] Navigate to definitions of commands in `depends`
+  - [ ] Navigate to definitions of commands in `depends` from mixins
+- **Highlighting**
+  - [ ] Highlighting for shell script in cmd
 
 <!-- Plugin description end -->
 
@@ -100,6 +108,4 @@ See https://detekt.github.io/detekt/ Rule Sets to get more info about `detekt` f
 
 ## Todo
 
-- add highlighting for shell script in cmd - https://plugins.jetbrains.com/docs/intellij/file-view-providers.html
-- read mixins - https://plugins.jetbrains.com/docs/intellij/psi-cookbook.html#how-do-i-find-a-file-if-i-know-its-name-but-don-t-know-the-path
 - insert not padded strings, but yaml elements

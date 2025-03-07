@@ -1,9 +1,6 @@
 package com.github.kindermax.intellijlets.config
 
-import com.github.kindermax.intellijlets.Command
-import com.github.kindermax.intellijlets.CommandParseException
-import com.github.kindermax.intellijlets.Config
-import com.github.kindermax.intellijlets.ConfigParseException
+import com.github.kindermax.intellijlets.*
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 open class ConfigTest : BasePlatformTestCase() {
@@ -12,7 +9,7 @@ open class ConfigTest : BasePlatformTestCase() {
         return "src/test/resources/config"
     }
 
-    fun testParseConfigSuccess() {
+    fun testParseConfigOk() {
         val letsFile = myFixture.copyFileToProject("/lets.yaml")
         myFixture.configureFromExistingVirtualFile(letsFile)
         val file = myFixture.file
@@ -21,8 +18,20 @@ open class ConfigTest : BasePlatformTestCase() {
 
         assertEquals(config.shell, "bash")
         assertEquals(config.before, "echo Before")
-        assertEquals(config.env, mapOf("DEBUG" to "false"))
-        assertEquals(config.evalEnv, mapOf("DAY" to "`echo Moday`"))
+        assertEquals(config.init, "echo Init")
+        assertEquals(
+            config.mixins,
+            listOf(
+                Mixin.Local("lets.mixin.yaml"),
+                Mixin.Remote("https://lets-cli.org/mixins/lets.mixin.yaml", "1")
+            )
+        )
+        assertEquals(config.env, mapOf(
+            "DEBUG" to EnvValue.StringValue("false"),
+            "DAY" to EnvValue.ShMode("`echo Moday`"),
+            "SELF_CHECKSUM" to EnvValue.ChecksumMode(listOf("lets.yaml")),
+            "SELF_CHECKSUM_MAP" to EnvValue.ChecksumMapMode(mapOf("self" to listOf("lets.yaml"))),
+        ))
         assertEquals(
             config.commands,
             listOf<Command>(
@@ -30,8 +39,10 @@ open class ConfigTest : BasePlatformTestCase() {
                     "run",
                     "echo Run",
                     emptyMap(),
-                    mapOf("DEV" to "true"),
-                    mapOf("UID" to "`echo 1`"),
+                    mapOf(
+                        "DEV" to EnvValue.StringValue("true"),
+                        "UID" to EnvValue.ShMode("`echo 1`")
+                    ),
                     listOf("install")
                 ),
                 Command(
@@ -39,13 +50,11 @@ open class ConfigTest : BasePlatformTestCase() {
                     "echo Install",
                     emptyMap(),
                     emptyMap(),
-                    emptyMap(),
                     emptyList()
                 ),
                 Command(
                     "build",
                     "echo Build",
-                    emptyMap(),
                     emptyMap(),
                     emptyMap(),
                     emptyList()
@@ -57,7 +66,6 @@ open class ConfigTest : BasePlatformTestCase() {
                         "app" to "echo App",
                         "db" to "echo Db",
                     ),
-                    emptyMap(),
                     emptyMap(),
                     emptyList()
                 ),

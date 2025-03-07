@@ -55,7 +55,7 @@ class LetsMixinReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(ele
 
         // Collect all YAML files, including in subdirectories
         val yamlFiles = FilenameIndex.getAllFilesByExt(project, "yaml")
-            .mapNotNull { file -> file.path?.let { LookupElementBuilder.create(it.removePrefix(project.basePath ?: "")) } }
+            .mapNotNull { file -> file.path.let { LookupElementBuilder.create(it.removePrefix(project.basePath ?: "")) } }
 
         return yamlFiles.toTypedArray()
     }
@@ -65,8 +65,10 @@ class LetsMixinReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(ele
      * Supports both top-level files ("lets.build.yaml") and nested files ("lets/lets.docs.yaml").
      */
     private fun findMixinFile(project: Project, mixinPath: String): VirtualFile? {
-        // Normalize paths (handle both "lets.build.yaml" and "lets/lets.docs.yaml")
+        // Normalize paths (handle both "lets.mixin.yaml" and "lets/lets.mixin.yaml")
         val normalizedPath = mixinPath.trimStart('/')
+        // Normalize gitignored files (e.g. "-lets.mixin.yaml" -> "lets.mixin.yaml")
+        .removePrefix("-")
 
         // Look for an exact match in the project
         return FilenameIndex.getVirtualFilesByName(
