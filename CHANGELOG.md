@@ -6,6 +6,8 @@
 ### Added
 
 - resolve commands in `depends`
+- complete Lets builtin env variables inside `cmd` scripts
+- complete `LETSOPT_` and `LETSCLI_` env variables inside `cmd` scripts if `options` docopt is present
 
 ### Updated
 
