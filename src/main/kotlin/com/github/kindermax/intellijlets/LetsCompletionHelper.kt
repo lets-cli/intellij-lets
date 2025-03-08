@@ -65,41 +65,33 @@ object LetsCompletionHelper {
         return false
     }
 
-    private fun getDependsParentName(parameters: CompletionParameters): String? {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        if (yamlKeyValueParents.size == DEPENDS_LEVEL) {
-            return yamlKeyValueParents[1].name
-        }
-
-        return ""
-    }
-
     /**
      * Get all possible commands suggestions for a `depends`, except:
      * - itself
      * - already specified commands in depends
      * - other commands which depend on current command
      */
-    fun getDependsSuggestions(parameters: CompletionParameters, config: Config): List<String> {
-        val cmdName = getDependsParentName(parameters) ?: return emptyList()
-        val cmd = config.commandsMap[cmdName] ?: return emptyList()
+    fun getDependsSuggestions(parameters: CompletionParameters): List<String> {
+        val yamlFile = parameters.originalFile as? YAMLFile ?: return emptyList()
+        val allCommands = LetsPsiUtils.findAllCommands(yamlFile)
+        val currentCommand = LetsPsiUtils.findCurrentCommand(parameters.position) ?: return emptyList()
 
         val excludeList = mutableSetOf<String>()
         // exclude itself
-        excludeList.add(cmdName)
+        excludeList.add(currentCommand.name)
         // exclude commands already in depends list
-        excludeList.addAll(cmd.depends)
+        excludeList.addAll(currentCommand.depends)
 
         // exclude commands which depends on current command (eliminate recursive dependencies)
-        for (command in config.commands.filter { c -> c.name != cmdName }) {
-            if (command.depends.contains(cmdName)) {
+        for (command in allCommands.filter { c -> c.name != currentCommand.name }) {
+            if (command.depends.contains(currentCommand.name)) {
                 excludeList.add(command.name)
             }
         }
 
-        return config.commandsMap.keys
-            .filterNot { command -> excludeList.contains(command) }
+        return allCommands
+            .filterNot { command -> excludeList.contains(command.name) }
+            .map { it.name }
             .toList()
     }
 
@@ -108,9 +100,12 @@ object LetsCompletionHelper {
      * - itself
      * Since ref is a YAMLScalar, only one command is suggested.
      */
-    fun getRefSuggestions(parameters: CompletionParameters, config: Config): List<String> {
-        val cmdName = getDependsParentName(parameters) ?: return emptyList()
+    fun getRefSuggestions(parameters: CompletionParameters): List<String> {
+        val yamlFile = parameters.originalFile as? YAMLFile ?: return emptyList()
+        val allCommands = LetsPsiUtils.findAllCommands(yamlFile)
+        val currentCommand = LetsPsiUtils.findCurrentCommand(parameters.position) ?: return emptyList()
         // Exclude itself from suggestions and return only one suggestion
-        return config.commandsMap.keys.firstOrNull { it != cmdName }?.let { listOf(it) } ?: emptyList()
+        return allCommands.filterNot { it.name == currentCommand.name }
+            .map { it.name }
     }
 }

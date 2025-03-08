@@ -143,9 +143,7 @@ open class CompleteKeywordTest : BasePlatformTestCase() {
         val variants = myFixture.getCompletionVariants("lets.yaml")
         assertNotNull(variants)
 
-        val expected = listOf(
-            "hi", "lol"
-        )
+        val expected = listOf("hi", "lol")
 
         assertEquals(expected.sorted(), variants?.sorted())
     }
@@ -194,5 +192,39 @@ open class CompleteKeywordTest : BasePlatformTestCase() {
             """.trimIndent() + " ",
             myFixture.file.text,
         )
+    }
+
+    fun testRefCompletionWorks() {
+        myFixture.addFileToProject(
+            "mixins/lets.mixin.yaml",
+            """
+            shell: bash
+
+            commands:
+              build:
+                cmd: echo Build
+            """.trimIndent()
+        )
+
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            mixins:
+              - mixins/lets.mixin.yaml
+
+            commands:
+              build-dev:
+                ref: <caret>
+                args: --dev
+            """.trimIndent()
+        )
+
+        val variants = myFixture.getCompletionVariants("lets.yaml")
+        assertNotNull(variants)
+
+        val expected = listOf("build")
+
+        assertEquals(expected.sorted(), variants?.sorted())
     }
 }

@@ -14,7 +14,6 @@ import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
-import org.jetbrains.yaml.psi.YAMLSequenceItem
 
 open class LetsReferenceContributor : PsiReferenceContributor() {
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
@@ -48,15 +47,7 @@ open abstract class LetsCommandReference(element: YAMLScalar) :  PsiReferenceBas
         // If the current file is a mixin, retrieve the main lets.yaml file
         val mainConfigFile = findMainConfigFile(yamlFile) ?: return null
 
-        // Find the mixins key in the main lets.yaml file
-        val mixinsKey = PsiTreeUtil.findChildrenOfType(mainConfigFile, YAMLKeyValue::class.java)
-            .firstOrNull { it.keyText == "mixins" } ?: return null
-
-        // Extract mixin file names from YAMLSequenceItems
-        val mixinFiles = mixinsKey.value?.children
-            ?.mapNotNull { it as? YAMLSequenceItem }
-            ?.mapNotNull { it.value as? YAMLScalar }
-            ?.mapNotNull { LetsMixinReference(it).resolve() as? YAMLFile } ?: return null
+        val mixinFiles = LetsPsiUtils.findMixinFiles(mainConfigFile) ?: return null
 
         // Search for the command in the resolved mixin files
         for (mixinFile in mixinFiles) {

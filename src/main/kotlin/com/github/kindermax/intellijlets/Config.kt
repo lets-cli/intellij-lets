@@ -23,12 +23,19 @@ sealed class Mixin {
 
 typealias Mixins = List<Mixin>
 
+//data class Command(
+//    val name: String,
+//    val cmd: String,
+//    val cmdAsMap: Map<String, String>,
+//    val env: Env,
+//    val depends: List<String>,
+//)
+
+// Store original YAMLKeyValue for later use, maybe to lazily parse it
 data class Command(
     val name: String,
-    val cmd: String,
-    val cmdAsMap: Map<String, String>,
-    val env: Env,
     val depends: List<String>,
+    val yamlKeyValue: YAMLKeyValue,
 )
 
 open class ConfigException(message: String) : Exception(message)
@@ -36,6 +43,40 @@ open class ConfigException(message: String) : Exception(message)
 class ConfigParseException(message: String) : ConfigException(message)
 class CommandParseException(message: String) : ConfigException(message)
 
+
+class ConfigParser {
+    companion object {
+        fun parseCommand(obj: YAMLKeyValue): Command {
+            val name = obj.keyText
+            var depends = emptyList<String>()
+             when (val value = obj.value) {
+                is YAMLMapping -> {
+                    value.keyValues.forEach {
+                        kv ->
+                        when (kv.keyText) {
+                            "depends" -> {
+                                depends = parseDepends(kv)
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Command(
+                name,
+                depends,
+                obj,
+            )
+        }
+
+       fun parseDepends(obj: YAMLKeyValue): List<String> {
+            return when (val value = obj.value) {
+                is YAMLSequence -> value.items.mapNotNull { it.value?.text }
+                else -> emptyList()
+            }
+        }
+    }
+}
 /**
  * Representation of current lets.yaml.
  * Note that since we parse config during completion, the config itself may be broken at that moment,
@@ -166,7 +207,6 @@ class Config(
                         kv ->
                         when (kv.keyText) {
                             "cmd" -> {
-
                                 when (val cmdValue = kv.value) {
                                     is YAMLMapping -> {
                                         cmdAsMap = cmdValue.keyValues.associate {
@@ -192,10 +232,8 @@ class Config(
 
             return Command(
                 name,
-                cmd,
-                cmdAsMap,
-                env,
                 depends,
+                keyValue,
             )
         }
 
