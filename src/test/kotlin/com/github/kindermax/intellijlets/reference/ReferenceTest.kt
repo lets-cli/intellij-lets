@@ -245,3 +245,46 @@ open class DependsReferenceTest : BasePlatformTestCase() {
         assertEquals("test", resolvedKey!!.keyText)
     }
 }
+
+
+open class RefReferenceTest : BasePlatformTestCase() {
+    fun testRefCommandReference() {
+        myFixture.addFileToProject(
+            "mixins/lets.mixin.yaml",
+            """
+            shell: bash
+
+            commands:
+              build:
+                cmd: echo Build
+            """.trimIndent()
+        )
+
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            mixins:
+              - mixins/lets.mixin.yaml
+
+            commands:
+              build-dev:
+                ref: <caret>build
+                args: --dev
+            """.trimIndent()
+        )
+
+        val ref = myFixture.getReferenceAtCaretPosition("lets.yaml")
+        assertNotNull("Reference should not be null", ref)
+
+        val resolvedElement = ref!!.resolve()
+        assertNotNull("Resolved element should not be null", resolvedElement)
+
+        val resolvedFile = resolvedElement?.containingFile
+        assertEquals("lets.mixin.yaml", resolvedFile?.name)
+
+        val resolvedKey = resolvedElement as? YAMLKeyValue
+        assertNotNull("Resolved element should be a YAMLKeyValue", resolvedKey)
+        assertEquals("build", resolvedKey!!.keyText)
+    }
+}

@@ -27,6 +27,7 @@ open class LetsReferenceContributor : PsiReferenceContributor() {
                     return when (yamlKeyValue.keyText) {
                         "mixins" -> arrayOf(LetsMixinReference(element as YAMLScalar))
                         "depends" -> arrayOf(LetsDependsReference(element as YAMLScalar))
+                        "ref" -> arrayOf(LetsRefReference(element as YAMLScalar))
                         else -> emptyArray()
                     }
                 }
@@ -35,26 +36,11 @@ open class LetsReferenceContributor : PsiReferenceContributor() {
     }
 }
 
-class LetsDependsReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(element) {
-    override fun resolve(): PsiElement? {
-        val commandName = myElement.textValue // Extracts the command name inside `depends`
-
-        // Locate the command declaration in the same YAML file
-        val yamlFile = myElement.containingFile as? YAMLFile ?: return null
-        val localCommand = PsiTreeUtil.findChildrenOfType(yamlFile, YAMLKeyValue::class.java)
-            .firstOrNull { it.keyText == commandName && it.parent is YAMLMapping }
-
-        if (localCommand != null) {
-            return localCommand
-        }
-
-        // Search for the command in mixin files (with recursive support)
-        return findCommandInMixins(yamlFile, commandName, mutableSetOf())
-    }
+open abstract class LetsCommandReference(element: YAMLScalar) :  PsiReferenceBase<YAMLScalar>(element) {
     /**
      * Recursively searches for the given command name in mixin files.
      */
-    private fun findCommandInMixins(yamlFile: YAMLFile, commandName: String, visitedFiles: MutableSet<YAMLFile>): PsiElement? {
+    protected fun findCommandInMixins(yamlFile: YAMLFile, commandName: String, visitedFiles: MutableSet<YAMLFile>): PsiElement? {
         if (!visitedFiles.add(yamlFile)) {
             return null // Prevent infinite recursion
         }
@@ -89,6 +75,51 @@ class LetsDependsReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(e
         }
 
         return null
+    }
+
+    /**
+     * Finds the main lets.yaml configuration file, assuming it is located at the root.
+     */
+    private fun findMainConfigFile(currentFile: YAMLFile): YAMLFile? {
+        val project = currentFile.project
+        val mainFiles = FilenameIndex.getVirtualFilesByName("lets.yaml", GlobalSearchScope.projectScope(project))
+        return mainFiles.mapNotNull { PsiManager.getInstance(project).findFile(it) as? YAMLFile }.firstOrNull()
+    }
+}
+
+class LetsDependsReference(element: YAMLScalar) : LetsCommandReference(element) {
+    override fun resolve(): PsiElement? {
+        val commandName = myElement.textValue // Extracts the command name inside `depends`
+
+        // Locate the command declaration in the same YAML file
+        val yamlFile = myElement.containingFile as? YAMLFile ?: return null
+        val localCommand = PsiTreeUtil.findChildrenOfType(yamlFile, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == commandName && it.parent is YAMLMapping }
+
+        if (localCommand != null) {
+            return localCommand
+        }
+
+        // Search for the command in mixin files (with recursive support)
+        return findCommandInMixins(yamlFile, commandName, mutableSetOf())
+    }
+}
+
+class LetsRefReference(element: YAMLScalar) : LetsCommandReference(element) {
+    override fun resolve(): PsiElement? {
+        val commandName = myElement.textValue // Extracts the command name inside `ref`
+
+        // Locate the command declaration in the same YAML file
+        val yamlFile = myElement.containingFile as? YAMLFile ?: return null
+        val localCommand = PsiTreeUtil.findChildrenOfType(yamlFile, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == commandName && it.parent is YAMLMapping }
+
+        if (localCommand != null) {
+            return localCommand
+        }
+
+        // Search for the command in mixin files (with recursive support)
+        return findCommandInMixins(yamlFile, commandName, mutableSetOf())
     }
 }
 
@@ -136,13 +167,4 @@ class LetsMixinReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(ele
             PathUtil.getFileName(normalizedPath), GlobalSearchScope.allScope(project)
         ).firstOrNull { it.path.endsWith(normalizedPath) }
     }
-}
-
-/**
- * Finds the main lets.yaml configuration file, assuming it is located at the root.
- */
-private fun findMainConfigFile(currentFile: YAMLFile): YAMLFile? {
-    val project = currentFile.project
-    val mainFiles = FilenameIndex.getVirtualFilesByName("lets.yaml", GlobalSearchScope.projectScope(project))
-    return mainFiles.mapNotNull { PsiManager.getInstance(project).findFile(it) as? YAMLFile }.firstOrNull()
 }
