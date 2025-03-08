@@ -48,15 +48,22 @@ class LetsDependsReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(e
             return localCommand
         }
 
-        // Search for the command in mixin files
-        return findCommandInMixins(yamlFile, commandName)
+        // Search for the command in mixin files (with recursive support)
+        return findCommandInMixins(yamlFile, commandName, mutableSetOf())
     }
     /**
-     * Searches for the given command name in mixin files.
+     * Recursively searches for the given command name in mixin files.
      */
-    private fun findCommandInMixins(yamlFile: YAMLFile, commandName: String): PsiElement? {
-        // Find the mixins key in the YAML file
-        val mixinsKey = PsiTreeUtil.findChildrenOfType(yamlFile, YAMLKeyValue::class.java)
+    private fun findCommandInMixins(yamlFile: YAMLFile, commandName: String, visitedFiles: MutableSet<YAMLFile>): PsiElement? {
+        if (!visitedFiles.add(yamlFile)) {
+            return null // Prevent infinite recursion
+        }
+
+        // If the current file is a mixin, retrieve the main lets.yaml file
+        val mainConfigFile = findMainConfigFile(yamlFile) ?: return null
+
+        // Find the mixins key in the main lets.yaml file
+        val mixinsKey = PsiTreeUtil.findChildrenOfType(mainConfigFile, YAMLKeyValue::class.java)
             .firstOrNull { it.keyText == "mixins" } ?: return null
 
         // Extract mixin file names from YAMLSequenceItems
@@ -72,6 +79,12 @@ class LetsDependsReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(e
 
             if (command != null) {
                 return command
+            }
+
+            // Recursively check mixins within this mixin
+            val nestedCommand = findCommandInMixins(mixinFile, commandName, visitedFiles)
+            if (nestedCommand != null) {
+                return nestedCommand
             }
         }
 
@@ -123,4 +136,13 @@ class LetsMixinReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(ele
             PathUtil.getFileName(normalizedPath), GlobalSearchScope.allScope(project)
         ).firstOrNull { it.path.endsWith(normalizedPath) }
     }
+}
+
+/**
+ * Finds the main lets.yaml configuration file, assuming it is located at the root.
+ */
+private fun findMainConfigFile(currentFile: YAMLFile): YAMLFile? {
+    val project = currentFile.project
+    val mainFiles = FilenameIndex.getVirtualFilesByName("lets.yaml", GlobalSearchScope.projectScope(project))
+    return mainFiles.mapNotNull { PsiManager.getInstance(project).findFile(it) as? YAMLFile }.firstOrNull()
 }

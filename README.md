@@ -18,12 +18,15 @@ File type recognition for `lets.yaml` and `lets.*.yaml` configs
   - [ ] Complete env mode in `env` with code snippet
   - [x] Complete `LETS*` environment variables in cmd scripts
   - [ ] Complete environment variables for checksum
+  - [ ] Complete environment variables from global and command `env` in cmd scripts
+  - [ ] Complete environment variables in `args`
 - **Go To Definition**
   - [x] Navigate to definitions of `mixins` files
   - [x] Navigate to definitions of optional `mixins` files (with - at the beginning)
   - [x] Navigate to definitions of `mixins` remote files (as http links)
   - [x] Navigate to definitions of commands in `depends`
-  - [ ] Navigate to definitions of commands in `depends` from mixins
+  - [x] Navigate to definitions of commands in `depends` from mixins
+  - [ ] Navigate to definitions of commands in `ref`
   - [ ] Navigate to files in `checksum`
 - **Highlighting**
   - [x] Highlighting for shell script in `cmd`
