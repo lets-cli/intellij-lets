@@ -44,7 +44,6 @@ object LetsCompletionHelper {
     private fun isInCommandKey(keyValue: YAMLKeyValue): Boolean {
         val parentKeyValue = keyValue.parent?.parent as? YAMLKeyValue ?: return false
         return parentKeyValue.keyText == "commands"
-//                && keyValue.keyText in COMMAND_LEVEL_KEYWORDS
     }
 
     /**

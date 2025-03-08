@@ -25,7 +25,7 @@ open class LetsEnvVariableCompletionContributorBase : CompletionContributor() {
     }
 
     protected fun completeCmdEnvVariables(
-        parameters: CompletionParameters,
+        yamlFile: YAMLFile,
         result: CompletionResultSet,
         cmdKeyValue: YAMLKeyValue?,
         prefixText: String,
@@ -40,15 +40,15 @@ open class LetsEnvVariableCompletionContributorBase : CompletionContributor() {
         val extractedOptions = extractOptionNames(optionsText)
 
         when {
-            prefixText.endsWith("$") -> addEnvVariableCompletions(parameters, result, "$", extractedOptions)
-            prefixText.endsWith("\$L") -> addEnvVariableCompletions(parameters, result, "\$L", extractedOptions)
-            prefixText.endsWith("\${") -> addEnvVariableCompletions(parameters, result, "\${", extractedOptions)
-            prefixText.endsWith("\${L") -> addEnvVariableCompletions(parameters, result, "\${L", extractedOptions)
+            prefixText.endsWith("$") -> addEnvVariableCompletions(yamlFile, result, "$", extractedOptions)
+            prefixText.endsWith("\$L") -> addEnvVariableCompletions(yamlFile, result, "\$L", extractedOptions)
+            prefixText.endsWith("\${") -> addEnvVariableCompletions(yamlFile, result, "\${", extractedOptions)
+            prefixText.endsWith("\${L") -> addEnvVariableCompletions(yamlFile, result, "\${L", extractedOptions)
         }
     }
 
     private fun addEnvVariableCompletions(
-        parameters: CompletionParameters,
+        yamlFile: YAMLFile,
         result: CompletionResultSet,
         prefix: String,
         extractedOptions: Set<String>
@@ -59,15 +59,13 @@ open class LetsEnvVariableCompletionContributorBase : CompletionContributor() {
             prefixMatcher.addElement(createEnvVariableLookupElement(it))
         }
 
-        val currentFile = parameters.originalFile as YAMLFile
-
-        val globalEnvVars = LetsPsiUtils.getGlobalEnvVariables(currentFile)
+        val globalEnvVars = LetsPsiUtils.getGlobalEnvVariables(yamlFile)
 
         globalEnvVars.forEach {
             prefixMatcher.addElement(createEnvVariableLookupElement(it))
         }
 
-        val currentCommand = LetsPsiUtils.findCurrentCommand(currentFile)
+        val currentCommand = LetsPsiUtils.findCurrentCommand(yamlFile)
 
         currentCommand?.env?.keys?.forEach {
             prefixMatcher.addElement(createEnvVariableLookupElement(it))
@@ -112,6 +110,7 @@ class LetsEnvVariableCompletionContributor : LetsEnvVariableCompletionContributo
                     val element = parameters.position
 
                     val keyValue = PsiTreeUtil.getParentOfType(element, YAMLKeyValue::class.java) ?: return
+                    val currentFile = parameters.originalFile as YAMLFile
 
                     when (keyValue.keyText) {
                         "options" -> {
@@ -126,7 +125,7 @@ class LetsEnvVariableCompletionContributor : LetsEnvVariableCompletionContributo
                             val prefixText = parameters.editor.document.getText(TextRange(lineOffset, caret.offset))
 
                             completeCmdEnvVariables(
-                                parameters,
+                                currentFile,
                                 result,
                                 keyValue,
                                 prefixText,
@@ -163,7 +162,7 @@ class LetsEnvVariableShellScriptCompletionContributor : LetsEnvVariableCompletio
                     val yamlFile: PsiFile = injectedLanguageManager.getInjectionHost(element)?.containingFile ?: return
 
                     // Ensure it's a YAML file
-                    if (yamlFile !is org.jetbrains.yaml.psi.YAMLFile) return
+                    if (yamlFile !is YAMLFile) return
 
                     // Retrieve the correct offset in the original YAML file
                     val hostOffset = injectedLanguageManager.injectedToHost(element, element.textOffset)
@@ -178,7 +177,7 @@ class LetsEnvVariableShellScriptCompletionContributor : LetsEnvVariableCompletio
                     val prefixText = parameters.editor.document.getText(TextRange(parameters.offset - 1, parameters.offset))
 
                     completeCmdEnvVariables(
-                        parameters,
+                        yamlFile,
                         result,
                         keyValue,
                         prefixText,
