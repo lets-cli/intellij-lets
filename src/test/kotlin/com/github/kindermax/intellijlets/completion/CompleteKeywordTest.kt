@@ -80,15 +80,15 @@ open class CompleteKeywordTest : BasePlatformTestCase() {
 
         myFixture.completeBasic()
 
-        assertEquals(myFixture.caretOffset, 63)
+        assertEquals(myFixture.caretOffset, 67)
         assertEquals(
             """
             shell: bash
             commands:
               echo:
                 options: |
-                  Usage: lets
-            """.trimIndent() + " ",
+                  Usage: lets echo
+            """.trimIndent(),
             myFixture.file.text.trimIndent(),
         )
     }
@@ -107,7 +107,7 @@ open class CompleteKeywordTest : BasePlatformTestCase() {
 
         myFixture.completeBasic()
 
-        assertEquals(myFixture.caretOffset, 80)
+        assertEquals(myFixture.caretOffset, 84)
         assertEquals(
             """
             shell: bash
@@ -115,7 +115,7 @@ open class CompleteKeywordTest : BasePlatformTestCase() {
               echo:
                 cmd: echo Hi
                 options: |
-                  Usage: lets 
+                  Usage: lets echo
             """.trimIndent(),
             myFixture.file.text.trimIndent(),
         )

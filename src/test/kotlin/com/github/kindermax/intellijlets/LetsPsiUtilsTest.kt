@@ -154,6 +154,28 @@ class LetsPsiUtilsTest : BasePlatformTestCase() {
         assertEquals(command.depends.sorted(), listOf("hello").sorted())
     }
 
+    fun testFindCurrentCommandWithContextType() {
+        val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            commands:
+              world:
+                cmd: echo World
+                depends: [hello]
+                op<caret>
+            """.trimIndent()
+        )
+
+        val element = file.findElementAt(myFixture.caretOffset - 1)!!
+        var command = LetsPsiUtils.findCurrentCommand(element, YamlContextType.CommandLevel)
+        assertNotNull(command)
+        command = command!!
+
+        assertEquals(command.name, "world")
+        assertEquals(command.depends.sorted(), listOf("hello").sorted())
+    }
+
     fun testFindCurrentCommandInDepends() {
         val file = myFixture.configureByText(
             "lets.yaml",
@@ -192,5 +214,26 @@ class LetsPsiUtilsTest : BasePlatformTestCase() {
 
         val usedKeywords = LetsPsiUtils.getUsedKeywords(file as YAMLFile)
         assertEquals(usedKeywords.sorted(), listOf("shell", "mixins", "before", "commands").sorted())
+    }
+
+    fun testFindGlobalEnv() {
+        val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            env:
+              OS: Darwin
+              DEV: true
+              
+            commands:
+              world:
+                cmd: echo World
+                env:
+                  FOO: BAR
+            """.trimIndent()
+        )
+
+        val envKeys = LetsPsiUtils.getGlobalEnvVariables(file as YAMLFile)
+        assertEquals(envKeys.toSet(), setOf("OS", "DEV"))
     }
 }

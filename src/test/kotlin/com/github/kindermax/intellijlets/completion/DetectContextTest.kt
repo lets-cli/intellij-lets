@@ -1,6 +1,7 @@
 package com.github.kindermax.intellijlets.completion
 
-import com.github.kindermax.intellijlets.LetsCompletionHelper
+import com.github.kindermax.intellijlets.LetsPsiUtils
+import com.github.kindermax.intellijlets.YamlContextType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 open class DetectContextTest : BasePlatformTestCase() {
@@ -19,8 +20,8 @@ open class DetectContextTest : BasePlatformTestCase() {
         val position = file.findElementAt(myFixture.caretOffset)
         assertNotNull(position)
 
-        val context = LetsCompletionHelper.detectContext(position!!)
-        assertEquals(context, LetsCompletionHelper.YamlContextType.RootLevel)
+        val context = LetsPsiUtils.detectContext(position!!)
+        assertEquals(context, YamlContextType.RootLevel)
     }
 
     fun testCommandLevel() {
@@ -38,8 +39,8 @@ open class DetectContextTest : BasePlatformTestCase() {
         val position = file.findElementAt(offset - 1)
         assertNotNull("PsiElement should not be null", position)
 
-        val context = LetsCompletionHelper.detectContext(position!!)
-        assertEquals(context, LetsCompletionHelper.YamlContextType.CommandLevel)
+        val context = LetsPsiUtils.detectContext(position!!)
+        assertEquals(context, YamlContextType.CommandLevel)
     }
 
     fun testShellLevel() {
@@ -53,8 +54,8 @@ open class DetectContextTest : BasePlatformTestCase() {
         val position = file.findElementAt(offset - 1)
         assertNotNull("PsiElement should not be null", position)
 
-        val context = LetsCompletionHelper.detectContext(position!!)
-        assertEquals(context, LetsCompletionHelper.YamlContextType.ShellLevel)
+        val context = LetsPsiUtils.detectContext(position!!)
+        assertEquals(context, YamlContextType.ShellLevel)
     }
 
     fun testDependsLevel() {
@@ -79,8 +80,8 @@ open class DetectContextTest : BasePlatformTestCase() {
         val position = file.findElementAt(offset)
         assertNotNull("PsiElement should not be null", position)
 
-        val context = LetsCompletionHelper.detectContext(position!!)
-        assertEquals(context, LetsCompletionHelper.YamlContextType.DependsLevel)
+        val context = LetsPsiUtils.detectContext(position!!)
+        assertEquals(context, YamlContextType.DependsLevel)
     }
 
     fun testRefLevel() {
@@ -101,7 +102,7 @@ open class DetectContextTest : BasePlatformTestCase() {
         val position = file.findElementAt(offset - 1)
         assertNotNull("PsiElement should not be null", position)
 
-        val context = LetsCompletionHelper.detectContext(position!!)
-        assertEquals(context, LetsCompletionHelper.YamlContextType.RefLevel)
+        val context = LetsPsiUtils.detectContext(position!!)
+        assertEquals(context, YamlContextType.RefLevel)
     }
 }

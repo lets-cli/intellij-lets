@@ -15,10 +15,10 @@ File type recognition for `lets.yaml` and `lets.*.yaml` configs
   - [x] Complete command `options` with code snippet
   - [x] Complete commands in `depends` with code snippet
   - [x] Complete commands in `depends` from mixins
-  - [ ] Complete env mode in `env` with code snippet
+  - [x] Complete env mode in `env` with code snippet
   - [x] Complete `LETS*` environment variables in cmd scripts
   - [ ] Complete environment variables for checksum
-  - [ ] Complete environment variables from global and command `env` in cmd scripts
+  - [x] Complete environment variables from global and command `env` in cmd scripts
   - [ ] Complete environment variables in `args`
 - **Go To Definition**
   - [x] Navigate to definitions of `mixins` files
