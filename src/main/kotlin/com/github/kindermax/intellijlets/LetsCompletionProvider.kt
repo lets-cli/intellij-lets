@@ -7,35 +7,23 @@ import com.intellij.codeInsight.completion.InsertHandler
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.psi.PsiFile
 import com.intellij.util.ProcessingContext
-import java.util.logging.Logger
+import org.jetbrains.yaml.psi.YAMLFile
 
 object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
-    private val log: Logger = Logger.getLogger(LetsCompletionProvider.javaClass.name)
-
-    private fun maybeGetConfig(file: PsiFile): Config? {
-        return try {
-            Config.parseFromPSI(file)
-        } catch (exp: ConfigException) {
-            log.warning(exp.toString())
-            return null
-        }
-    }
-
     @Suppress("ComplexMethod")
     override fun addCompletions(
         parameters: CompletionParameters,
         context: ProcessingContext,
         result: CompletionResultSet,
     ) {
-        val config = maybeGetConfig(parameters.originalFile) ?: return
-
-        when {
-            LetsCompletionHelper.isRootLevel(parameters) -> {
-                val suggestions = when (config.keywordsInConfig.size) {
+        when (LetsCompletionHelper.detectContext(parameters.position)) {
+            LetsCompletionHelper.YamlContextType.RootLevel -> {
+                val yamlFile = parameters.originalFile as YAMLFile
+                val usedKeywords = LetsPsiUtils.getUsedKeywords(yamlFile)
+                val suggestions = when (usedKeywords.size) {
                     0 -> TOP_LEVEL_KEYWORDS
-                    else -> TOP_LEVEL_KEYWORDS.filterNot { config.keywordsInConfig.contains(it) }.toList()
+                    else -> TOP_LEVEL_KEYWORDS.filterNot { usedKeywords.contains(it) }.toList()
                 }
                 result.addAllElements(
                     suggestions.map { keyword ->
@@ -48,10 +36,10 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
                     }
                 )
             }
-            LetsCompletionHelper.isShellLevel(parameters) -> {
+            LetsCompletionHelper.YamlContextType.ShellLevel -> {
                 result.addAllElements(DEFAULT_SHELLS.map { keyword -> createLookupElement(keyword) })
             }
-            LetsCompletionHelper.isCommandLevel(parameters) -> {
+            LetsCompletionHelper.YamlContextType.CommandLevel -> {
                 result.addAllElements(
                     COMMAND_LEVEL_KEYWORDS.map { keyword ->
                         when (keyword) {
@@ -63,12 +51,19 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
                     }
                 )
             }
-            LetsCompletionHelper.isDependsLevel(parameters) -> {
-                val suggestions = LetsCompletionHelper.getDependsSuggestions(parameters, config)
+            LetsCompletionHelper.YamlContextType.DependsLevel -> {
+                val suggestions = LetsCompletionHelper.getDependsSuggestions(parameters)
                 result.addAllElements(
                     suggestions.map { keyword -> createLookupElement(keyword) }
                 )
             }
+            LetsCompletionHelper.YamlContextType.RefLevel -> {
+                val suggestions = LetsCompletionHelper.getRefSuggestions(parameters)
+                result.addAllElements(
+                    suggestions.map { keyword -> createLookupElement(keyword) }
+                )
+            }
+            LetsCompletionHelper.YamlContextType.Unknown -> return
         }
     }
 }

@@ -1,39 +1,54 @@
 package com.github.kindermax.intellijlets.config
 
 import com.github.kindermax.intellijlets.*
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.jetbrains.yaml.psi.YAMLFile
+import org.jetbrains.yaml.psi.YAMLKeyValue
 
-open class ConfigTest : BasePlatformTestCase() {
+open class ConfigParserTest : BasePlatformTestCase() {
+    fun testParseCommand() {
+         val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            
+            commands:
+              run:
+                depends:
+                  - install
+                env:
+                  DEV: true
+                  UID:
+                    sh: `echo 1`
+                cmd: echo Run
 
-    override fun getTestDataPath(): String {
-        return "src/test/resources/config"
-    }
+              install:
+                cmd: echo Install
 
-    fun testParseConfigOk() {
-        val letsFile = myFixture.copyFileToProject("/lets.yaml")
-        myFixture.configureFromExistingVirtualFile(letsFile)
-        val file = myFixture.file
+              build:
+                cmd:
+                  - echo
+                  - Build
+              dev:
+                cmd:
+                  app: echo App
+                  db: echo Db
+            """.trimIndent()
+        ) as YAMLFile
 
-        val config = Config.parseFromPSI(file)
+        val commandsKV = PsiTreeUtil.findChildrenOfType(file, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == "commands" }!!
 
-        assertEquals(config.shell, "bash")
-        assertEquals(config.before, "echo Before")
-        assertEquals(config.init, "echo Init")
+        val commands = PsiTreeUtil.findChildrenOfType(commandsKV, YAMLKeyValue::class.java)
+            .filter { it.parent.parent == commandsKV }
+            .map { ConfigParser.parseCommand(it) }
+
+        val elements = PsiTreeUtil.findChildrenOfType(commandsKV, YAMLKeyValue::class.java)
+            .filter { it.parent.parent == commandsKV }
+
         assertEquals(
-            config.mixins,
-            listOf(
-                Mixin.Local("lets.mixin.yaml"),
-                Mixin.Remote("https://lets-cli.org/mixins/lets.mixin.yaml", "1")
-            )
-        )
-        assertEquals(config.env, mapOf(
-            "DEBUG" to EnvValue.StringValue("false"),
-            "DAY" to EnvValue.ShMode("`echo Moday`"),
-            "SELF_CHECKSUM" to EnvValue.ChecksumMode(listOf("lets.yaml")),
-            "SELF_CHECKSUM_MAP" to EnvValue.ChecksumMapMode(mapOf("self" to listOf("lets.yaml"))),
-        ))
-        assertEquals(
-            config.commands,
+            commands,
             listOf<Command>(
                 Command(
                     "run",
@@ -43,21 +58,24 @@ open class ConfigTest : BasePlatformTestCase() {
                         "DEV" to EnvValue.StringValue("true"),
                         "UID" to EnvValue.ShMode("`echo 1`")
                     ),
-                    listOf("install")
+                    listOf("install"),
+                    elements[0]
                 ),
                 Command(
                     "install",
                     "echo Install",
                     emptyMap(),
                     emptyMap(),
-                    emptyList()
+                    emptyList(),
+                    elements[1]
                 ),
                 Command(
                     "build",
                     "echo Build",
                     emptyMap(),
                     emptyMap(),
-                    emptyList()
+                    emptyList(),
+                    elements[2],
                 ),
                 Command(
                     "dev",
@@ -67,46 +85,122 @@ open class ConfigTest : BasePlatformTestCase() {
                         "db" to "echo Db",
                     ),
                     emptyMap(),
-                    emptyList()
+                    emptyList(),
+                    elements[3],
                 ),
             )
         )
     }
 
-    fun testParseBrokenConfig() {
-        myFixture.configureByText(
-            "lets.yaml",
-            """
-            - aaa
-            - bb
-            """.trimIndent()
-        )
-        val file = myFixture.file
-
-        try {
-            Config.parseFromPSI(file)
-        } catch (exc: ConfigParseException) {
-            assertEquals(exc.message, "failed to parse config: not a valid document")
-        }
-    }
-
-    fun testParseBrokenCommand() {
-        myFixture.configureByText(
+    fun testParseEnv() {
+        val file = myFixture.configureByText(
             "lets.yaml",
             """
             shell: bash
+            env:
+              DEBUG: false
+              DAY:
+                sh: `echo Moday`
+              SELF_CHECKSUM:
+                checksum: [lets.yaml]
+              SELF_CHECKSUM_MAP:
+                checksum:
+                  self:
+                    - lets.yaml
             commands:
-              run:
-                - foo
-                - bar
+              build:
+                cmd: echo Build
             """.trimIndent()
-        )
-        val file = myFixture.file
+        ) as YAMLFile
 
-        try {
-            Config.parseFromPSI(file)
-        } catch (exc: CommandParseException) {
-            assertEquals(exc.message, "failed to parse command run")
-        }
+        val envKV = PsiTreeUtil.findChildrenOfType(file, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == "env" }!!
+
+        val env = ConfigParser.parseEnv(envKV)
+
+        assertEquals(env, mapOf(
+            "DEBUG" to EnvValue.StringValue("false"),
+            "DAY" to EnvValue.ShMode("`echo Moday`"),
+            "SELF_CHECKSUM" to EnvValue.ChecksumMode(listOf("lets.yaml")),
+            "SELF_CHECKSUM_MAP" to EnvValue.ChecksumMapMode(mapOf("self" to listOf("lets.yaml"))),
+        ))
+    }
+
+    fun testParseMixins() {
+        val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            mixins:
+              - lets.mixin.yaml
+              - url: https://lets-cli.org/mixins/lets.mixin.yaml
+                version: 1
+            commands:
+              build:
+                cmd: echo Build
+            """.trimIndent()
+        ) as YAMLFile
+
+        val mixinsKV = PsiTreeUtil.findChildrenOfType(file, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == "mixins" }!!
+
+        val mixins = ConfigParser.parseMixins(mixinsKV)
+
+        assertEquals(
+            mixins,
+            listOf(
+                Mixin.Local("lets.mixin.yaml"),
+                Mixin.Remote("https://lets-cli.org/mixins/lets.mixin.yaml", "1")
+            )
+        )
+    }
+
+    fun testParseShell() {
+        val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            """.trimIndent()
+        ) as YAMLFile
+
+        val shellKV = PsiTreeUtil.findChildrenOfType(file, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == "shell" }!!
+
+        val shell = ConfigParser.parseShell(shellKV)
+        assertEquals(shell, "bash")
+    }
+
+    fun testParseBefore() {
+        val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            before: echo Before
+            init: echo Init
+            """.trimIndent()
+        ) as YAMLFile
+
+        val beforeKV = PsiTreeUtil.findChildrenOfType(file, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == "before" }!!
+
+        val before = ConfigParser.parseBefore(beforeKV)
+        assertEquals(before, "echo Before")
+    }
+
+    fun testParseInit() {
+        val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            before: echo Before
+            init: echo Init
+            """.trimIndent()
+        ) as YAMLFile
+
+        val initKV = PsiTreeUtil.findChildrenOfType(file, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == "init" }!!
+
+        val init = ConfigParser.parseBefore(initKV)
+        assertEquals(init, "echo Init")
     }
 }

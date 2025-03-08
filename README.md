@@ -14,7 +14,7 @@ File type recognition for `lets.yaml` and `lets.*.yaml` configs
 - **Completion**
   - [x] Complete command `options` with code snippet
   - [x] Complete commands in `depends` with code snippet
-  - [ ] Complete commands in `depends` from mixins
+  - [x] Complete commands in `depends` from mixins
   - [ ] Complete env mode in `env` with code snippet
   - [x] Complete `LETS*` environment variables in cmd scripts
   - [ ] Complete environment variables for checksum
@@ -26,7 +26,7 @@ File type recognition for `lets.yaml` and `lets.*.yaml` configs
   - [x] Navigate to definitions of `mixins` remote files (as http links)
   - [x] Navigate to definitions of commands in `depends`
   - [x] Navigate to definitions of commands in `depends` from mixins
-  - [ ] Navigate to definitions of commands in `ref`
+  - [x] Navigate to definitions of commands in `ref`
   - [ ] Navigate to files in `checksum`
 - **Highlighting**
   - [x] Highlighting for shell script in `cmd`

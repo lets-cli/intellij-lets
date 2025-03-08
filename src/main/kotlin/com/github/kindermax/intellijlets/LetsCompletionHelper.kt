@@ -1,95 +1,93 @@
 package com.github.kindermax.intellijlets
 
 import com.intellij.codeInsight.completion.CompletionParameters
-import com.intellij.psi.util.parentsOfType
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 
 object LetsCompletionHelper {
-    private fun isInTopLevelDirective(name: String, parameters: CompletionParameters): Boolean {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
+    sealed class YamlContextType {
+        object RootLevel : YamlContextType()
+        object CommandLevel : YamlContextType()
+        object ShellLevel : YamlContextType()
+        object DependsLevel : YamlContextType()
+        object RefLevel : YamlContextType()
+        object Unknown : YamlContextType()
+    }
 
-        if (yamlKeyValueParents.size == 1) {
-            return yamlKeyValueParents[0].name == name
+    fun detectContext(position: PsiElement): YamlContextType {
+        if (isRootLevel(position)) return YamlContextType.RootLevel
+
+        val keyValue = PsiTreeUtil.getParentOfType(position, YAMLKeyValue::class.java) ?: return YamlContextType.Unknown
+
+        return when {
+            isInCommandKey(keyValue) -> YamlContextType.CommandLevel
+            isInTopLevelKey(keyValue) -> YamlContextType.RootLevel
+            keyValue.keyText == "shell" -> YamlContextType.ShellLevel
+            keyValue.keyText == "depends" -> YamlContextType.DependsLevel
+            keyValue.keyText == "ref" -> YamlContextType.RefLevel
+            else -> YamlContextType.Unknown
         }
-        return false
     }
 
-    /**
-     * Check if current position is in command context. It means:
-     * commands:
-     *   echo:
-     *     | -> cursor is here
-     */
-    fun isCommandLevel(parameters: CompletionParameters): Boolean {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        if (yamlKeyValueParents.size == 2) {
-            return yamlKeyValueParents[1].name == "commands"
-        }
-        return false
-    }
-
-    /**
-     * Check if current position is in shell context. It means:
-     * shell: | -> cursor is here
-     */
-    fun isShellLevel(parameters: CompletionParameters): Boolean {
-        return isInTopLevelDirective("shell", parameters)
-    }
-
-    fun isRootLevel(parameters: CompletionParameters): Boolean {
+    private fun isRootLevel(position: PsiElement): Boolean {
         return (
-            parameters.position.parent.parent.parent is YAMLFile ||
-                parameters.position.parent.parent.parent.parent is YAMLFile
-            )
+            position.parent.parent.parent is YAMLFile ||
+            position.parent.parent.parent.parent is YAMLFile
+        )
+    }
+    private fun isInTopLevelKey(keyValue: YAMLKeyValue): Boolean {
+        return keyValue.keyText in TOP_LEVEL_KEYWORDS && keyValue.parent?.parent is YAMLFile
     }
 
-    fun isDependsLevel(parameters: CompletionParameters): Boolean {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        if (yamlKeyValueParents.size == DEPENDS_LEVEL) {
-            return yamlKeyValueParents[0].name == "depends"
-        }
-
-        return false
-    }
-
-    private fun getDependsParentName(parameters: CompletionParameters): String? {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        if (yamlKeyValueParents.size == DEPENDS_LEVEL) {
-            return yamlKeyValueParents[1].name
-        }
-
-        return ""
+    private fun isInCommandKey(keyValue: YAMLKeyValue): Boolean {
+        val parentKeyValue = keyValue.parent?.parent as? YAMLKeyValue ?: return false
+        return parentKeyValue.keyText == "commands"
+//                && keyValue.keyText in COMMAND_LEVEL_KEYWORDS
     }
 
     /**
-     * Get all possible depends suggestions for a command, except:
+     * Get all possible commands suggestions for a `depends`, except:
      * - itself
      * - already specified commands in depends
      * - other commands which depend on current command
      */
-    fun getDependsSuggestions(parameters: CompletionParameters, config: Config): List<String> {
-        val cmdName = getDependsParentName(parameters) ?: return emptyList()
-        val cmd = config.commandsMap[cmdName] ?: return emptyList()
+    fun getDependsSuggestions(parameters: CompletionParameters): List<String> {
+        val yamlFile = parameters.originalFile as? YAMLFile ?: return emptyList()
+        val allCommands = LetsPsiUtils.findAllCommands(yamlFile)
+        val currentCommand = LetsPsiUtils.findCurrentCommand(parameters.position) ?: return emptyList()
 
         val excludeList = mutableSetOf<String>()
         // exclude itself
-        excludeList.add(cmdName)
+        excludeList.add(currentCommand.name)
         // exclude commands already in depends list
-        excludeList.addAll(cmd.depends)
+        excludeList.addAll(currentCommand.depends)
 
         // exclude commands which depends on current command (eliminate recursive dependencies)
-        for (command in config.commands.filter { c -> c.name != cmdName }) {
-            if (command.depends.contains(cmdName)) {
+        for (command in allCommands.filter { c -> c.name != currentCommand.name }) {
+            if (command.depends.contains(currentCommand.name)) {
                 excludeList.add(command.name)
             }
         }
 
-        return config.commandsMap.keys
-            .filterNot { command -> excludeList.contains(command) }
+        return allCommands
+            .filterNot { command -> excludeList.contains(command.name) }
+            .map { it.name }
             .toList()
+    }
+
+    /**
+     * Get all possible commands suggestions for a `ref`, except:
+     * - itself
+     * Since ref is a YAMLScalar, only one command is suggested.
+     */
+    fun getRefSuggestions(parameters: CompletionParameters): List<String> {
+        val yamlFile = parameters.originalFile as? YAMLFile ?: return emptyList()
+        val allCommands = LetsPsiUtils.findAllCommands(yamlFile)
+        val currentCommand = LetsPsiUtils.findCurrentCommand(parameters.position) ?: return emptyList()
+        // Exclude itself from suggestions and return only one suggestion
+        return allCommands.filterNot { it.name == currentCommand.name }
+            .map { it.name }
     }
 }
