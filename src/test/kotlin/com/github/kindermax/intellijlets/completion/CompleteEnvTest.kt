@@ -68,4 +68,26 @@ open class CompleteEnvTest : BasePlatformTestCase() {
 
         assertEquals(expected, variants?.toSet())
     }
+
+    fun testCompleteFromCommandEnv() {
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+    
+            commands:
+              run:
+                env:
+                  DEV: true 
+                cmd: Echo $<caret>
+            """.trimIndent()
+        )
+        val variants = myFixture.getCompletionVariants("lets.yaml")
+        assertNotNull(variants)
+
+        val expected = BUILTIN_ENV_VARIABLES.map { "\${$it}" }.toMutableSet()
+        expected.add("\${DEV}")
+
+        assertEquals(expected, variants?.toSet())
+    }
 }

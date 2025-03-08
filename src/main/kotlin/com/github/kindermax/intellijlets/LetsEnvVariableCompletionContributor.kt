@@ -59,11 +59,17 @@ open class LetsEnvVariableCompletionContributorBase : CompletionContributor() {
             prefixMatcher.addElement(createEnvVariableLookupElement(it))
         }
 
-        val globalEnvVars = (parameters.originalFile as? YAMLFile)?.let {
-            LetsPsiUtils.getGlobalEnvVariables(it)
-        } ?: emptySet()
+        val currentFile = parameters.originalFile as YAMLFile
+
+        val globalEnvVars = LetsPsiUtils.getGlobalEnvVariables(currentFile)
 
         globalEnvVars.forEach {
+            prefixMatcher.addElement(createEnvVariableLookupElement(it))
+        }
+
+        val currentCommand = LetsPsiUtils.findCurrentCommand(currentFile)
+
+        currentCommand?.env?.keys?.forEach {
             prefixMatcher.addElement(createEnvVariableLookupElement(it))
         }
 
