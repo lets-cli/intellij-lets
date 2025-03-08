@@ -5,7 +5,8 @@
 ## [Unreleased]
 ### Added
 
-- resolve commands in `depends`
+- inject `Shell Script` language in `cmd` scripts
+- resolve commands in `depends` including mixins
 - complete Lets builtin env variables inside `cmd` scripts
 - complete `LETSOPT_` and `LETSCLI_` env variables inside `cmd` scripts if `options` docopt is present
 
