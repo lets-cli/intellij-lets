@@ -55,6 +55,16 @@ object LetsCompletionHelper {
         return false
     }
 
+    fun isRefLevel(parameters: CompletionParameters): Boolean {
+        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
+
+        if (yamlKeyValueParents.size == REF_LEVEL) {
+            return yamlKeyValueParents[0].name == "ref"
+        }
+
+        return false
+    }
+
     private fun getDependsParentName(parameters: CompletionParameters): String? {
         val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
 
@@ -66,7 +76,7 @@ object LetsCompletionHelper {
     }
 
     /**
-     * Get all possible depends suggestions for a command, except:
+     * Get all possible commands suggestions for a `depends`, except:
      * - itself
      * - already specified commands in depends
      * - other commands which depend on current command
@@ -91,5 +101,16 @@ object LetsCompletionHelper {
         return config.commandsMap.keys
             .filterNot { command -> excludeList.contains(command) }
             .toList()
+    }
+
+    /**
+     * Get all possible commands suggestions for a `ref`, except:
+     * - itself
+     * Since ref is a YAMLScalar, only one command is suggested.
+     */
+    fun getRefSuggestions(parameters: CompletionParameters, config: Config): List<String> {
+        val cmdName = getDependsParentName(parameters) ?: return emptyList()
+        // Exclude itself from suggestions and return only one suggestion
+        return config.commandsMap.keys.firstOrNull { it != cmdName }?.let { listOf(it) } ?: emptyList()
     }
 }

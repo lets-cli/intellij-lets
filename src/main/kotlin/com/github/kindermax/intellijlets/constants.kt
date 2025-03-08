@@ -1,6 +1,7 @@
 package com.github.kindermax.intellijlets
 
 const val DEPENDS_LEVEL = 3
+const val REF_LEVEL = 3
 
 const val COMMAND_CHILD_PADDING = 6
 const val ROOT_PADDING = 2

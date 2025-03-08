@@ -69,6 +69,12 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
                     suggestions.map { keyword -> createLookupElement(keyword) }
                 )
             }
+            LetsCompletionHelper.isRefLevel(parameters) -> {
+                val suggestions = LetsCompletionHelper.getRefSuggestions(parameters, config)
+                result.addAllElements(
+                    suggestions.map { keyword -> createLookupElement(keyword) }
+                )
+            }
         }
     }
 }
