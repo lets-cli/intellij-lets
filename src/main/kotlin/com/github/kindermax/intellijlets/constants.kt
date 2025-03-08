@@ -43,5 +43,3 @@ val BUILTIN_ENV_VARIABLES  = listOf(
     "LETS_CONFIG_DIR",
     "LETS_SHELL",
 )
-
-// TODO: support LETSOPT_ and LETSCLI_ if options is available

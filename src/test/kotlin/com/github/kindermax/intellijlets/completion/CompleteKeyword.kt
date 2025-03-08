@@ -1,9 +1,9 @@
-package com.github.kindermax.intellijlets.completion.field
+package com.github.kindermax.intellijlets.completion
 
 import com.github.kindermax.intellijlets.DEFAULT_SHELLS
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
-open class FieldsTest : BasePlatformTestCase() {
+open class CompleteKeywordTest : BasePlatformTestCase() {
 
     fun testRootCompletion() {
         myFixture.configureByText(

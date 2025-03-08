@@ -12,20 +12,23 @@ This IntelliJ plugin provides support for https://github.com/lets-cli/lets task 
 File type recognition for `lets.yaml` and `lets.*.yaml` configs
 
 - **Completion**
-  - Complete keywords
-    - [x] Complete command `options` with code snippet
-    - [x] Complete commands in `depends` with code snippet
-    - [ ] Complete commands in `depends` from mixins
-    - [ ] Complete env mode in `env` with code snippet
-    - [ ] Complete environment variables in cmd scripts
+  - [x] Complete command `options` with code snippet
+  - [x] Complete commands in `depends` with code snippet
+  - [ ] Complete commands in `depends` from mixins
+  - [ ] Complete env mode in `env` with code snippet
+  - [x] Complete `LETS*` environment variables in cmd scripts
+  - [ ] Complete environment variables for checksum
 - **Go To Definition**
   - [x] Navigate to definitions of `mixins` files
   - [x] Navigate to definitions of optional `mixins` files (with - at the beginning)
   - [x] Navigate to definitions of `mixins` remote files (as http links)
   - [x] Navigate to definitions of commands in `depends`
   - [ ] Navigate to definitions of commands in `depends` from mixins
+  - [ ] Navigate to files in `checksum`
 - **Highlighting**
-  - [x] Highlighting for shell script in cmd
+  - [x] Highlighting for shell script in `cmd`
+  - [ ] Highlighting for shell script in `before`
+  - [ ] Highlighting for shell script in `init`
 - **Diagnostic**
   - [ ] Diagnostic for missing `depends` commands
   - [ ] Diagnostic for missing `mixins` files
