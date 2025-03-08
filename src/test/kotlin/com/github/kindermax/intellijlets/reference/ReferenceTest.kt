@@ -37,6 +37,99 @@ open class MinixsReferenceTest : BasePlatformTestCase() {
         assertEquals("lets.mixin.yaml", resolvedFile.name)
     }
 
+    fun testDependsCommandInMixinReference() {
+        myFixture.addFileToProject(
+            "mixins/lets.mixin.yaml",
+            """
+            shell: bash
+            
+            commands:
+              test:
+                cmd: echo Test
+            """.trimIndent()
+        )
+
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            mixins:
+              - mixins/lets.mixin.yaml
+            
+            commands:
+              run:
+                depends: [<caret>test]
+                cmd: echo Run
+            """.trimIndent()
+        )
+
+        val ref = myFixture.getReferenceAtCaretPosition("lets.yaml")
+        assertNotNull("Reference should not be null", ref)
+
+        val resolvedElement = ref!!.resolve()
+        assertNotNull("Resolved element should not be null", resolvedElement)
+
+        val resolvedFile = resolvedElement?.containingFile
+        assertEquals("lets.mixin.yaml", resolvedFile?.name)
+
+        val resolvedKey = resolvedElement as? YAMLKeyValue
+        assertNotNull("Resolved element should be a YAMLKeyValue", resolvedKey)
+        assertEquals("test", resolvedKey!!.keyText)
+    }
+
+    fun testDependsCommandCrossMixinReference() {
+        myFixture.addFileToProject(
+            "mixins/lets.build.yaml",
+            """
+            shell: bash
+ 
+            commands:
+              build:
+                cmd: echo Build
+            """.trimIndent()
+        )
+
+        myFixture.addFileToProject(
+            "mixins/lets.deploy.yaml",
+            """
+            shell: bash
+            
+            commands:
+              deploy:
+                depends: [<caret>build]
+                cmd: echo Deploy
+            """.trimIndent()
+        )
+
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            mixins:
+              - mixins/lets.build.yaml
+              - mixins/lets.deploy.yaml
+            
+            commands:
+              run:
+                depends: [deploy]
+                cmd: echo Run
+            """.trimIndent()
+        )
+
+        val ref = myFixture.getReferenceAtCaretPosition("mixins/lets.deploy.yaml")
+        assertNotNull("Reference should not be null", ref)
+
+        val resolvedElement = ref!!.resolve()
+        assertNotNull("Resolved element should not be null", resolvedElement)
+
+        val resolvedFile = resolvedElement?.containingFile
+        assertEquals("lets.build.yaml", resolvedFile?.name)
+
+        val resolvedKey = resolvedElement as? YAMLKeyValue
+        assertNotNull("Resolved element should be a YAMLKeyValue", resolvedKey)
+        assertEquals("build", resolvedKey!!.keyText)
+    }
+
     fun testMixinFileInDirReference() {
         myFixture.addFileToProject(
             "mixins/lets.mixin.yaml",
