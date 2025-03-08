@@ -20,15 +20,23 @@ class LetsBashInjector : MultiHostInjector {
     override fun getLanguagesToInject(registrar: MultiHostRegistrar, context: PsiElement) {
         // Ensure we are in a `cmd` field inside `commands`
         val keyValue = PsiTreeUtil.getParentOfType(context, YAMLKeyValue::class.java) ?: return
-        if (keyValue.keyText == "cmd") {
+        val commandName = PsiTreeUtil.getParentOfType(keyValue, YAMLKeyValue::class.java)?.keyText
+
+        if (keyValue.keyText == "cmd" && keyValue.value is YAMLScalar) {
             val bashLanguage = Language.findLanguageByID("Shell Script") ?: return
             val text = context.text
-            var startOffset = 0;
-            if (text.startsWith("|")) {
-                startOffset += 1
-            }
-            val endOffset = keyValue.endOffset - (keyValue.value?.startOffset ?: keyValue.endOffset)
+
+            val hostTextRange = context.textRange
+
+            // Calculate the actual text content length for injection
+            val startOffset = if (text.startsWith("|")) 1 else 0
+            val endOffset = minOf(context.textLength - startOffset, hostTextRange.length - startOffset)
             val injectionTextRange = TextRange(startOffset, endOffset)
+
+            if (!hostTextRange.contains(injectionTextRange.shiftRight(hostTextRange.startOffset))) {
+                // The injection range is outside of the host text range
+                return
+            }
             registrar.startInjecting(bashLanguage)
                 .addPlace(null, null, context as PsiLanguageInjectionHost, injectionTextRange)
                 .doneInjecting()

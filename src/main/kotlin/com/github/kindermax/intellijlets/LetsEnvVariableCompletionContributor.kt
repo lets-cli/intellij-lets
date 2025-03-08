@@ -24,17 +24,13 @@ open class LetsEnvVariableCompletionContributorBase : CompletionContributor() {
     }
 
     protected fun completeCmdEnvVariables(
-        parameters: CompletionParameters,
         result: CompletionResultSet,
+        cmdKeyValue: YAMLKeyValue?,
         prefixText: String,
     ) {
-        val element = parameters.position
-
-        val keyValue = PsiTreeUtil.getParentOfType(element, YAMLKeyValue::class.java) ?: return
-
         var optionsText = ""
-        if (keyValue.parent is YAMLMapping) {
-            val commandMapping = keyValue.parent as? YAMLMapping ?: return
+        if (cmdKeyValue?.parent is YAMLMapping) {
+            val commandMapping = cmdKeyValue.parent as? YAMLMapping ?: return
             val optionsKey = commandMapping.getKeyValueByKey("options")
             optionsText = optionsKey?.valueText ?: ""
         }
@@ -113,8 +109,8 @@ class LetsEnvVariableCompletionContributor : LetsEnvVariableCompletionContributo
                             val prefixText = parameters.editor.document.getText(TextRange(lineOffset, caret.offset))
 
                             completeCmdEnvVariables(
-                                parameters,
                                 result,
+                                keyValue,
                                 prefixText,
                             )
                         }
@@ -164,8 +160,8 @@ class LetsEnvVariableShellScriptCompletionContributor : LetsEnvVariableCompletio
                     val prefixText = parameters.editor.document.getText(TextRange(parameters.offset - 1, parameters.offset))
 
                     completeCmdEnvVariables(
-                        parameters,
                         result,
+                        keyValue,
                         prefixText,
                     )
                 }
