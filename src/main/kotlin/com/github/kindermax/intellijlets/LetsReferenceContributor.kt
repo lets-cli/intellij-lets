@@ -14,6 +14,7 @@ import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
+import org.jetbrains.yaml.psi.YAMLSequenceItem
 
 open class LetsReferenceContributor : PsiReferenceContributor() {
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
@@ -40,8 +41,41 @@ class LetsDependsReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(e
 
         // Locate the command declaration in the same YAML file
         val yamlFile = myElement.containingFile as? YAMLFile ?: return null
-        return PsiTreeUtil.findChildrenOfType(yamlFile, YAMLKeyValue::class.java)
+        val localCommand = PsiTreeUtil.findChildrenOfType(yamlFile, YAMLKeyValue::class.java)
             .firstOrNull { it.keyText == commandName && it.parent is YAMLMapping }
+
+        if (localCommand != null) {
+            return localCommand
+        }
+
+        // Search for the command in mixin files
+        return findCommandInMixins(yamlFile, commandName)
+    }
+    /**
+     * Searches for the given command name in mixin files.
+     */
+    private fun findCommandInMixins(yamlFile: YAMLFile, commandName: String): PsiElement? {
+        // Find the mixins key in the YAML file
+        val mixinsKey = PsiTreeUtil.findChildrenOfType(yamlFile, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == "mixins" } ?: return null
+
+        // Extract mixin file names from YAMLSequenceItems
+        val mixinFiles = mixinsKey.value?.children
+            ?.mapNotNull { it as? YAMLSequenceItem }
+            ?.mapNotNull { it.value as? YAMLScalar }
+            ?.mapNotNull { LetsMixinReference(it).resolve() as? YAMLFile } ?: return null
+
+        // Search for the command in the resolved mixin files
+        for (mixinFile in mixinFiles) {
+            val command = PsiTreeUtil.findChildrenOfType(mixinFile, YAMLKeyValue::class.java)
+                .firstOrNull { it.keyText == commandName && it.parent is YAMLMapping }
+
+            if (command != null) {
+                return command
+            }
+        }
+
+        return null
     }
 }
 
@@ -81,7 +115,7 @@ class LetsMixinReference(element: YAMLScalar) : PsiReferenceBase<YAMLScalar>(ele
     private fun findMixinFile(project: Project, mixinPath: String): VirtualFile? {
         // Normalize paths (handle both "lets.mixin.yaml" and "lets/lets.mixin.yaml")
         val normalizedPath = mixinPath.trimStart('/')
-        // Normalize gitignored files (e.g. "-lets.mixin.yaml" -> "lets.mixin.yaml")
+        // Normalize git-ignored files (e.g. "-lets.mixin.yaml" -> "lets.mixin.yaml")
             .removePrefix("-")
 
         // Look for an exact match in the project
