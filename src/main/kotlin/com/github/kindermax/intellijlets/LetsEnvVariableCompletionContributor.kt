@@ -10,6 +10,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLMapping
+import org.jetbrains.yaml.psi.YAMLFile
 
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.psi.PsiFile
@@ -24,6 +25,7 @@ open class LetsEnvVariableCompletionContributorBase : CompletionContributor() {
     }
 
     protected fun completeCmdEnvVariables(
+        parameters: CompletionParameters,
         result: CompletionResultSet,
         cmdKeyValue: YAMLKeyValue?,
         prefixText: String,
@@ -38,14 +40,15 @@ open class LetsEnvVariableCompletionContributorBase : CompletionContributor() {
         val extractedOptions = extractOptionNames(optionsText)
 
         when {
-            prefixText.endsWith("$") -> addEnvVariableCompletions(result, "$", extractedOptions)
-            prefixText.endsWith("\$L") -> addEnvVariableCompletions(result, "\$L", extractedOptions)
-            prefixText.endsWith("\${") -> addEnvVariableCompletions(result, "\${", extractedOptions)
-            prefixText.endsWith("\${L") -> addEnvVariableCompletions(result, "\${L", extractedOptions)
+            prefixText.endsWith("$") -> addEnvVariableCompletions(parameters, result, "$", extractedOptions)
+            prefixText.endsWith("\$L") -> addEnvVariableCompletions(parameters, result, "\$L", extractedOptions)
+            prefixText.endsWith("\${") -> addEnvVariableCompletions(parameters, result, "\${", extractedOptions)
+            prefixText.endsWith("\${L") -> addEnvVariableCompletions(parameters, result, "\${L", extractedOptions)
         }
     }
 
     private fun addEnvVariableCompletions(
+        parameters: CompletionParameters,
         result: CompletionResultSet,
         prefix: String,
         extractedOptions: Set<String>
@@ -53,6 +56,14 @@ open class LetsEnvVariableCompletionContributorBase : CompletionContributor() {
         val prefixMatcher = result.withPrefixMatcher(prefix)
 
         BUILTIN_ENV_VARIABLES.forEach {
+            prefixMatcher.addElement(createEnvVariableLookupElement(it))
+        }
+
+        val globalEnvVars = (parameters.originalFile as? YAMLFile)?.let {
+            LetsPsiUtils.getGlobalEnvVariables(it)
+        } ?: emptySet()
+
+        globalEnvVars.forEach {
             prefixMatcher.addElement(createEnvVariableLookupElement(it))
         }
 
@@ -109,6 +120,7 @@ class LetsEnvVariableCompletionContributor : LetsEnvVariableCompletionContributo
                             val prefixText = parameters.editor.document.getText(TextRange(lineOffset, caret.offset))
 
                             completeCmdEnvVariables(
+                                parameters,
                                 result,
                                 keyValue,
                                 prefixText,
@@ -160,6 +172,7 @@ class LetsEnvVariableShellScriptCompletionContributor : LetsEnvVariableCompletio
                     val prefixText = parameters.editor.document.getText(TextRange(parameters.offset - 1, parameters.offset))
 
                     completeCmdEnvVariables(
+                        parameters,
                         result,
                         keyValue,
                         prefixText,

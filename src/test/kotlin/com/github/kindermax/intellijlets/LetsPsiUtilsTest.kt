@@ -193,4 +193,25 @@ class LetsPsiUtilsTest : BasePlatformTestCase() {
         val usedKeywords = LetsPsiUtils.getUsedKeywords(file as YAMLFile)
         assertEquals(usedKeywords.sorted(), listOf("shell", "mixins", "before", "commands").sorted())
     }
+
+    fun testFindGlobalEnv() {
+        val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            env:
+              OS: Darwin
+              DEV: true
+              
+            commands:
+              world:
+                cmd: echo World
+                env:
+                  FOO: BAR
+            """.trimIndent()
+        )
+
+        val envKeys = LetsPsiUtils.getGlobalEnvVariables(file as YAMLFile)
+        assertEquals(envKeys.toSet(), setOf("OS", "DEV"))
+    }
 }

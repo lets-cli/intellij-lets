@@ -18,7 +18,7 @@ File type recognition for `lets.yaml` and `lets.*.yaml` configs
   - [ ] Complete env mode in `env` with code snippet
   - [x] Complete `LETS*` environment variables in cmd scripts
   - [ ] Complete environment variables for checksum
-  - [ ] Complete environment variables from global and command `env` in cmd scripts
+  - [x] Complete environment variables from global and command `env` in cmd scripts
   - [ ] Complete environment variables in `args`
 - **Go To Definition**
   - [x] Navigate to definitions of `mixins` files

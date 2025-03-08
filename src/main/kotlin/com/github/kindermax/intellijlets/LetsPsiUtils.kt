@@ -75,4 +75,14 @@ object LetsPsiUtils {
 
         return usedKeywords
     }
+
+    fun getGlobalEnvVariables(yamlFile: YAMLFile): List<String> {
+        val envKey = PsiTreeUtil.findChildrenOfType(yamlFile, YAMLKeyValue::class.java)
+            .firstOrNull { it.keyText == "env" } ?: return emptyList()
+
+        return (envKey.value as? YAMLMapping)
+            ?.keyValues
+            ?.mapNotNull { it.keyText }
+            ?: emptyList()
+    }
 }
