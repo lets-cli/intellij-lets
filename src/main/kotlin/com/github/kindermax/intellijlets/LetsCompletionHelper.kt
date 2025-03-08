@@ -1,69 +1,50 @@
 package com.github.kindermax.intellijlets
 
 import com.intellij.codeInsight.completion.CompletionParameters
-import com.intellij.psi.util.parentsOfType
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 
 object LetsCompletionHelper {
-    private fun isInTopLevelDirective(name: String, parameters: CompletionParameters): Boolean {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
+    sealed class YamlContextType {
+        object RootLevel : YamlContextType()
+        object CommandLevel : YamlContextType()
+        object ShellLevel : YamlContextType()
+        object DependsLevel : YamlContextType()
+        object RefLevel : YamlContextType()
+        object Unknown : YamlContextType()
+    }
 
-        if (yamlKeyValueParents.size == 1) {
-            return yamlKeyValueParents[0].name == name
+    fun detectContext(position: PsiElement): YamlContextType {
+        if (isRootLevel(position)) return YamlContextType.RootLevel
+
+        val keyValue = PsiTreeUtil.getParentOfType(position, YAMLKeyValue::class.java) ?: return YamlContextType.Unknown
+
+        return when {
+            isInCommandKey(keyValue) -> YamlContextType.CommandLevel
+            isInTopLevelKey(keyValue) -> YamlContextType.RootLevel
+            keyValue.keyText == "shell" -> YamlContextType.ShellLevel
+            keyValue.keyText == "depends" -> YamlContextType.DependsLevel
+            keyValue.keyText == "ref" -> YamlContextType.RefLevel
+            else -> YamlContextType.Unknown
         }
-        return false
     }
 
-    /**
-     * Check if current position is in command context. It means:
-     * commands:
-     *   echo:
-     *     | -> cursor is here
-     */
-    fun isCommandLevel(parameters: CompletionParameters): Boolean {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        if (yamlKeyValueParents.size == 2) {
-            return yamlKeyValueParents[1].name == "commands"
-        }
-        return false
-    }
-
-    /**
-     * Check if current position is in shell context. It means:
-     * shell: | -> cursor is here
-     */
-    fun isShellLevel(parameters: CompletionParameters): Boolean {
-        return isInTopLevelDirective("shell", parameters)
-    }
-
-    fun isRootLevel(parameters: CompletionParameters): Boolean {
+    private fun isRootLevel(position: PsiElement): Boolean {
         return (
-            parameters.position.parent.parent.parent is YAMLFile ||
-                parameters.position.parent.parent.parent.parent is YAMLFile
-            )
+            position.parent.parent.parent is YAMLFile ||
+            position.parent.parent.parent.parent is YAMLFile
+        )
+    }
+    private fun isInTopLevelKey(keyValue: YAMLKeyValue): Boolean {
+        return keyValue.keyText in TOP_LEVEL_KEYWORDS && keyValue.parent?.parent is YAMLFile
     }
 
-    // TODO: refactor this methods, find more idiomatic way to check the level
-    fun isDependsLevel(parameters: CompletionParameters): Boolean {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        if (yamlKeyValueParents.size == DEPENDS_LEVEL) {
-            return yamlKeyValueParents[0].name == "depends"
-        }
-
-        return false
-    }
-
-    fun isRefLevel(parameters: CompletionParameters): Boolean {
-        val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
-
-        if (yamlKeyValueParents.size == REF_LEVEL) {
-            return yamlKeyValueParents[0].name == "ref"
-        }
-
-        return false
+    private fun isInCommandKey(keyValue: YAMLKeyValue): Boolean {
+        val parentKeyValue = keyValue.parent?.parent as? YAMLKeyValue ?: return false
+        return parentKeyValue.keyText == "commands"
+//                && keyValue.keyText in COMMAND_LEVEL_KEYWORDS
     }
 
     /**

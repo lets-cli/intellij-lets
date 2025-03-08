@@ -17,8 +17,8 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
         context: ProcessingContext,
         result: CompletionResultSet,
     ) {
-        when {
-            LetsCompletionHelper.isRootLevel(parameters) -> {
+        when (LetsCompletionHelper.detectContext(parameters.position)) {
+            LetsCompletionHelper.YamlContextType.RootLevel -> {
                 val yamlFile = parameters.originalFile as YAMLFile
                 val usedKeywords = LetsPsiUtils.getUsedKeywords(yamlFile)
                 val suggestions = when (usedKeywords.size) {
@@ -36,10 +36,10 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
                     }
                 )
             }
-            LetsCompletionHelper.isShellLevel(parameters) -> {
+            LetsCompletionHelper.YamlContextType.ShellLevel -> {
                 result.addAllElements(DEFAULT_SHELLS.map { keyword -> createLookupElement(keyword) })
             }
-            LetsCompletionHelper.isCommandLevel(parameters) -> {
+            LetsCompletionHelper.YamlContextType.CommandLevel -> {
                 result.addAllElements(
                     COMMAND_LEVEL_KEYWORDS.map { keyword ->
                         when (keyword) {
@@ -51,18 +51,19 @@ object LetsCompletionProvider : CompletionProvider<CompletionParameters>() {
                     }
                 )
             }
-            LetsCompletionHelper.isDependsLevel(parameters) -> {
+            LetsCompletionHelper.YamlContextType.DependsLevel -> {
                 val suggestions = LetsCompletionHelper.getDependsSuggestions(parameters)
                 result.addAllElements(
                     suggestions.map { keyword -> createLookupElement(keyword) }
                 )
             }
-            LetsCompletionHelper.isRefLevel(parameters) -> {
+            LetsCompletionHelper.YamlContextType.RefLevel -> {
                 val suggestions = LetsCompletionHelper.getRefSuggestions(parameters)
                 result.addAllElements(
                     suggestions.map { keyword -> createLookupElement(keyword) }
                 )
             }
+            LetsCompletionHelper.YamlContextType.Unknown -> return
         }
     }
 }
