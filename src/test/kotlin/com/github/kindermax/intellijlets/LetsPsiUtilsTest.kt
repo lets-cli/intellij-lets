@@ -154,6 +154,28 @@ class LetsPsiUtilsTest : BasePlatformTestCase() {
         assertEquals(command.depends.sorted(), listOf("hello").sorted())
     }
 
+    fun testFindCurrentCommandWithContextType() {
+        val file = myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            commands:
+              world:
+                cmd: echo World
+                depends: [hello]
+                op<caret>
+            """.trimIndent()
+        )
+
+        val element = file.findElementAt(myFixture.caretOffset - 1)!!
+        var command = LetsPsiUtils.findCurrentCommand(element, YamlContextType.CommandLevel)
+        assertNotNull(command)
+        command = command!!
+
+        assertEquals(command.name, "world")
+        assertEquals(command.depends.sorted(), listOf("hello").sorted())
+    }
+
     fun testFindCurrentCommandInDepends() {
         val file = myFixture.configureByText(
             "lets.yaml",
