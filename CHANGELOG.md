@@ -3,6 +3,9 @@
 # intellij-lets Changelog
 
 ## [Unreleased]
+
+## [0.0.17] - 2025-03-08
+
 ### Added
 
 - inject `Shell Script` language in `cmd` scripts
@@ -128,7 +131,8 @@
 - file type recognition - `lets.yaml` and `lets.*.yaml` files will be recognized as lets configs
 - basic completion - for now it will autocomplete only top level keywords
 
-[Unreleased]: https://github.com/lets-cli/intellij-lets/compare/v0.0.16...HEAD
+[Unreleased]: https://github.com/lets-cli/intellij-lets/compare/v0.0.17...HEAD
+[0.0.17]: https://github.com/lets-cli/intellij-lets/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/lets-cli/intellij-lets/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/lets-cli/intellij-lets/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/lets-cli/intellij-lets/compare/v0.0.13...v0.0.14
