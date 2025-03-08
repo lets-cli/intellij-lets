@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- Add reference for commands in `ref`
+- Add completion for commands in `ref`
+- Add completion for env variables in `cmd` scripts from global and command `env`
+
+### Internal
+
+- Refactor completions in a way to use LetsPsiUtils
+- Drop `Config`, refactor into `ConfigParser
+- Drop `LetsCompletionHelper`
+- Introduce `YamlContextType` enum instead of boolean functions for determining context type (position type)
+
 ## [0.0.17] - 2025-03-08
 
 ### Added

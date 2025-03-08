@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.yaml.psi.*
 
- sealed class YamlContextType {
+sealed class YamlContextType {
     object RootLevel : YamlContextType()
     object CommandLevel : YamlContextType()
     object ShellLevel : YamlContextType()
@@ -119,11 +119,9 @@ object LetsPsiUtils {
     }
 
     private fun isRootLevel(position: PsiElement): Boolean {
-        return (
-                position.parent.parent.parent is YAMLFile ||
-                        position.parent.parent.parent.parent is YAMLFile
-                )
+        return position.parent.parent.parent is YAMLFile || position.parent.parent.parent.parent is YAMLFile
     }
+
     private fun isInTopLevelKey(keyValue: YAMLKeyValue): Boolean {
         return keyValue.keyText in TOP_LEVEL_KEYWORDS && keyValue.parent?.parent is YAMLFile
     }
