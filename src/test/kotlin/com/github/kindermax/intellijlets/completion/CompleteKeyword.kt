@@ -4,8 +4,7 @@ import com.github.kindermax.intellijlets.DEFAULT_SHELLS
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 open class CompleteKeywordTest : BasePlatformTestCase() {
-
-    fun testRootCompletion() {
+    fun testRootKeywordCompletion() {
         myFixture.configureByText(
             "lets.yaml",
             """
@@ -44,7 +43,7 @@ open class CompleteKeywordTest : BasePlatformTestCase() {
         assertEquals(DEFAULT_SHELLS.sorted(), variants?.sorted())
     }
 
-    fun testCommandCompletionWithCLetter() {
+    fun testCommandLevelKeywordCompletion() {
         myFixture.configureByText(
             "lets.yaml",
             """
@@ -121,7 +120,9 @@ open class CompleteKeywordTest : BasePlatformTestCase() {
             myFixture.file.text.trimIndent(),
         )
     }
+}
 
+open class CompleteCommandsInDependsTest : BasePlatformTestCase() {
     fun testDependsCompletionWorks() {
         myFixture.configureByText(
             "lets.yaml",
@@ -194,7 +195,46 @@ open class CompleteKeywordTest : BasePlatformTestCase() {
         )
     }
 
-    fun testRefCompletionWorks() {
+    fun testCompleteCommandFromMixinsAsWell() {
+        myFixture.addFileToProject(
+            "mixins/lets.mixin.yaml",
+            """
+            shell: bash
+
+            commands:
+              build:
+                cmd: echo Build
+            """.trimIndent()
+        )
+
+        myFixture.configureByText(
+            "lets.yaml",
+            """
+            shell: bash
+            mixins:
+              - mixins/lets.mixin.yaml
+
+            commands:
+              test:
+                cmd: echo Test
+                
+              run:
+                depends: [<caret>]
+                cmd: echo Run
+            """.trimIndent()
+        )
+
+        val variants = myFixture.getCompletionVariants("lets.yaml")
+        assertNotNull(variants)
+
+        val expected = setOf("test", "build")
+
+        assertEquals(expected, variants?.toSet())
+    }
+}
+
+open class CompleteCommandsInRefTest : BasePlatformTestCase() {
+     fun testRefCompletionWorks() {
         myFixture.addFileToProject(
             "mixins/lets.mixin.yaml",
             """

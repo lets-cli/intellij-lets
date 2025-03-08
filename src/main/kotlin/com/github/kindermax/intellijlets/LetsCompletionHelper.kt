@@ -45,6 +45,7 @@ object LetsCompletionHelper {
             )
     }
 
+    // TODO: refactor this methods, find more idiomatic way to check the level
     fun isDependsLevel(parameters: CompletionParameters): Boolean {
         val yamlKeyValueParents = parameters.position.parentsOfType<YAMLKeyValue>(false).toList()
 

@@ -246,7 +246,6 @@ open class DependsReferenceTest : BasePlatformTestCase() {
     }
 }
 
-
 open class RefReferenceTest : BasePlatformTestCase() {
     fun testRefCommandReference() {
         myFixture.addFileToProject(
